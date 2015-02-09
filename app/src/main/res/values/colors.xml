@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <drawable name="amber_50">#FFF8E1</drawable>
+    <drawable name="amber_100">#FFECB3</drawable>
+    <drawable name="amber_200">#FFE082</drawable>
+    <drawable name="amber_300">#FFD54F</drawable>
+    <drawable name="amber_400">#FFCA28</drawable>
+    <drawable name="amber_500">#FFC107</drawable>
+    <drawable name="amber_600">#FFB300</drawable>
+    <drawable name="amber_700">#FFA000</drawable>
+    <drawable name="amber_800">#FF8F00</drawable>
+    <drawable name="amber_900">#FF6F00</drawable>
+    <color name="red">#ff0000</color>
+
+</resources>

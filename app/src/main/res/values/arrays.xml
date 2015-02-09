@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="supported_currencies">        
+        <item name="AUD">Australian Dollar</item>
+        <item name="CAD">Canadian Dollar</item>
+        <item name="CHF">Swiss Franc</item>
+        <item name="DKK">Danish Krone</item>
+        <item name="EUR">Euro</item>
+        <item name="GBP">British Pound Sterling</item>
+        <item name="HKD">Hong Kong Dollar</item>
+        <item name="JPY">Japanese Yen</item>
+        <item name="MXN">Mexican Peso</item>
+        <item name="NZD">New Zealand Dollar</item>
+        <item name="PHP">Philippine Peso</item>
+        <item name="SEK">Swedish Krona</item>
+        <item name="SGD">Singapore Dollar</item>
+        <item name="THB">Thai Baht</item>
+        <item name="USD">United States Dollar</item>
+        <item name="ZAR">South African Rand</item></string-array>
+    <string-array name="supported_currency_values">        
+        <item name="AUD">AUD</item>
+        <item name="CAD">CAD</item>
+        <item name="CHF">CHF</item>
+        <item name="DKK">DKK</item>
+        <item name="EUR">EUR</item>
+        <item name="GBP">GBP</item>
+        <item name="HKD">HKD</item>
+        <item name="JPY">JPY</item>
+        <item name="MXN">MXN</item>
+        <item name="NZD">NZD</item>
+        <item name="PHP">PHP</item>
+        <item name="SEK">SEK</item>
+        <item name="SGD">SGD</item>
+        <item name="THB">THB</item>
+        <item name="USD">USD</item>
+        <item name="ZAR">ZAR</item></string-array>
+	<string-array name="main_refresh_rates_text">
+	    <item name="30">0.5 minutes</item>
+	    <item name="60">1 minute</item>
+	    <item name="90">1.5 minutes</item>
+	    <item name="120">2 minutes</item>
+	    <item name="150">2.5 minutes</item>
+	    <item name="180">3 minutes</item>
+	    <item name="210">3.5 minutes</item>
+	    <item name="240">4 minutes</item>
+	    <item name="270">4.5 minutes</item>
+	    <item name="300">5 minutes</item>
+	</string-array>
+	<string-array name="main_refresh_rates_values">
+	    <item name="30">30</item>
+	    <item name="90">90</item>
+	    <item name="120">120</item>
+	    <item name="150">150</item>
+	    <item name="180">180</item>
+	    <item name="210">210</item>
+	    <item name="240">240</item>
+	    <item name="270">270</item>
+	    <item name="300">300</item>
+	    
+	</string-array>
+	
+
+</resources>

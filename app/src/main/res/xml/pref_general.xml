@@ -1,0 +1,63 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+         NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
+         dismiss it.
+
+    -->
+    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+    <PreferenceCategory android:title="General">
+        <ListPreference
+            android:defaultValue="USD"
+            android:entries="@array/supported_currencies"
+            android:entryValues="@array/supported_currency_values"
+            android:key="currencyDelim"
+            android:title="@string/sCurrencies" />
+        <ListPreference
+            android:defaultValue="60"
+            android:entries="@array/main_refresh_rates_text"
+            android:entryValues="@array/main_refresh_rates_values"
+            android:key="refreshRate"
+            android:title="@string/sRates" />
+
+        <!--<Preference android:title="@string/title_activity_help" >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="com.helwigdev.a.dogecoinutilities.Help"
+                android:targetPackage="com.helwigdev.a.dogecoinutilities" />
+        </Preference>-->
+
+        <CheckBoxPreference
+            android:key="satoshi"
+            android:defaultValue="true"
+            android:title="@string/satoshi"
+            android:summary="@string/satoshi_desc" />
+
+        <!-- Configure widgets? -->
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Backup / Restore">
+        <Preference
+            android:key="backup"
+            android:title="@string/sBackup_to_sd" />
+        <Preference
+            android:key="restore"
+            android:title="@string/sRestore" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Donate">
+        <Preference
+            android:key="donateBilling"
+            android:title="@string/removeads">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="com.helwigdev.a.dogecoinutilities.RemoveAds"
+                android:targetPackage="com.helwigdev.a.dogecoinutilities" />
+        </Preference>
+        <Preference
+            android:key="donateDoge"
+            android:title="@string/doge_donate" />
+
+        <!-- Variable monetary donation options -->
+        <!-- Doge-based donate options -->
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,65 +1,85 @@
 package com.helwigdev.a.dogecoinutilities;
 
 import android.app.Activity;
-import android.app.Fragment;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.app.Fragment;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.json.JSONException;
+import org.apache.http.HttpConnection;
+import org.apache.http.HttpConnectionMetrics;
+import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
-import java.text.FieldPosition;
-import java.text.Format;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
-import static java.lang.String.format;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ConnectException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 
 /**
- * Created by Tyler on 1/8/2015.
- */
-
-/**
- * Features:
- * Show satoshi values
- * 1Ð = 1Ð
- * Trading values
- * Show fiat values
+ * Created by Tyler on 2/19/2015.
+ * All code herein copyright Helwig Development 2/19/2015
  */
 public class CurrencyFragment extends Fragment {
 	private static final String ARG_SECTION_NUMBER = "section_number";
-	private String satoshiValue;
-	SharedPreferences sharedPref;
+	private static final String PREF_LOCAL_CURRENCY = "local_currency";
+	private ProgressBar pbSat;
+	private ProgressBar pbFiat;
+	private TextView tvSatSub1;
+	private TextView tvSatSub2;
+	private TextView tvFiatTitle;
+	private TextView tvFiatSub1;
+	private TextView tvFiatSub2;
 
-	ProgressBar progSat;
-	TextView tvSub1;
-	TextView tvSub2;
+	private boolean isLaunching;
 
-	ProgressBar progFiat;
-	TextView tvFiatHeader;
-	TextView tvFiat1;
-	TextView tvFiat2;
+	private Menu mMenu;
 
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		((MainActivity) activity).onSectionAttached(
-				getArguments().getInt(ARG_SECTION_NUMBER));
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+		isLaunching = savedInstanceState != null;
+		isLaunching = !isLaunching;
+	}
 
+	@Nullable
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+							 Bundle savedInstanceState) {
+		View v = inflater.inflate(R.layout.fragment_currency, container, false);
+
+		pbSat = (ProgressBar) v.findViewById(R.id.prog_sat);
+		tvSatSub1 = (TextView) v.findViewById(R.id.tv_frag_sub_satoshi_1);
+		tvSatSub2 = (TextView) v.findViewById(R.id.tv_frag_sub_satoshi_2);
+
+		pbFiat = (ProgressBar) v.findViewById(R.id.prog_fiat);
+		tvFiatTitle = (TextView) v.findViewById(R.id.tv_frag_header_fiat);
+		tvFiatSub1 = (TextView) v.findViewById(R.id.tv_frag_sub_fiat_1);
+		tvFiatSub2 = (TextView) v.findViewById(R.id.tv_frag_sub_fiat_2);
+		if(isLaunching) {//first launch
+			new GetCurrencyAsync().execute(tvSatSub2);
+			new GetCurrencyAsync().execute(tvFiatSub2);
+			isLaunching = false;
+		}
+
+		return v;
 	}
 
 	public static CurrencyFragment newInstance(int sectionNumber) {
@@ -71,150 +91,178 @@ public class CurrencyFragment extends Fragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-							 Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_currency, container, false);
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		((MainActivity) activity).onSectionAttached(
+				getArguments().getInt(ARG_SECTION_NUMBER));
+	}
 
+	private void refreshData() {
+		MenuItem itemRefresh = mMenu.findItem(R.id.menu_currency_refresh);
+		LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context
+				.LAYOUT_INFLATER_SERVICE);
+		View abprogress = inflater.inflate(R.layout.progress_wheel, null);
+		itemRefresh.setActionView(abprogress);
+
+		pbSat.setVisibility(View.VISIBLE);
+		pbFiat.setVisibility(View.VISIBLE);
+		tvSatSub1.setVisibility(View.GONE);
+		tvSatSub2.setVisibility(View.GONE);
+		tvFiatSub1.setVisibility(View.GONE);
+		tvFiatSub2.setVisibility(View.GONE);
+		new GetCurrencyAsync().execute(tvSatSub2);
+		new GetCurrencyAsync().execute(tvFiatSub2);
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-		progSat = (ProgressBar) getActivity().findViewById(R.id.prog_sat);
-		tvSub1 = (TextView) getActivity().findViewById(R.id.tv_frag_sub_satoshi_1);
-		tvSub2 = (TextView) getActivity().findViewById(R.id.tv_frag_sub_satoshi_2);
-
-		progFiat = (ProgressBar) getActivity().findViewById(R.id.prog_fiat);
-		tvFiatHeader = (TextView) getActivity().findViewById(R.id.tv_frag_header_fiat);
-		tvFiat1 = (TextView) getActivity().findViewById(R.id.tv_frag_sub_fiat_1);
-		tvFiat2 = (TextView) getActivity().findViewById(R.id.tv_frag_sub_fiat_2);
-
-		tvSub1.setVisibility(View.INVISIBLE);
-		tvSub2.setVisibility(View.INVISIBLE);
-		tvFiat1.setVisibility(View.INVISIBLE);
-		tvFiat2.setVisibility(View.INVISIBLE);
-
-		startLoadCurrencyData();
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		if(!((MainActivity)getActivity()).getNavigationDrawerFragment().isDrawerOpen()) {
+			inflater.inflate(R.menu.currency, menu);
+			mMenu = menu;
+		}
 	}
 
-	private void startLoadCurrencyData() {
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				//TODO get a loading/refresh icon in the ActionBar
-				String preferredCurrency = sharedPref.getString("currencyDelim", "USD");
-				final String fPrefCurrency = preferredCurrency;
-				getActivity().runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						tvFiatHeader.setText(fPrefCurrency);
-					}
-				});
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.menu_currency_refresh:
+				refreshData();
+				return true;
+			default:
+				//take no action
+				return super.onOptionsItemSelected(item);
+		}
+	}
 
-				//begin satoshi network items
-				ArrayList<JSONObject> dogePriceArray;
-				try {
-					dogePriceArray = Utilities.getDogePrice("BTC");
-				} catch (JSONException | TimeoutException | InterruptedException |
-						ExecutionException e) {
-					e.printStackTrace();
-					return;
-				}
-				//end of satoshi network items
+	public class GetCurrencyAsync extends AsyncTask<TextView, Void, String> {
 
-				//start of satoshi GUI items
-				String trading = "";
-				try {
-					for (JSONObject o : dogePriceArray) {
-						Log.d("JSON", o.toString());
-						double price = o.getDouble("price");
-						double sat = price * 100000000;
+		private String urlGetDogeSat = "https://block" +
+				".io/api/v1/get_current_price/?api_key=6411-6b24-8a06-218e&price_base=BTC";
+		private String urlGetDogeLocal;
+		TextView tv;
 
-						Date d = new Date(o.getLong("time"));
-						String sDate = new SimpleDateFormat("HH:mm:ss").format(d);
-						trading += format("%.0f", sat) + " on " + o.getString("exchange") + " at "
-								+ sDate + Utilities.newLine;
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					trading = "Network error";
-					getActivity().runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							tvSub2.setTextColor(getResources().getColor(R.color.red));
-						}
-					});
+		@Override
+		protected void onPreExecute() {
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+			String local = prefs.getString(PREF_LOCAL_CURRENCY, "USD");
+			urlGetDogeLocal = "https://block" +
+					".io/api/v1/get_current_price/?api_key=6411-6b24-8a06-218e&price_base=" +
+					local;
+		}
 
-				}
-
-				final String fTrading = trading.trim();
-				getActivity().runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						progSat.setVisibility(View.GONE);
-						tvSub1.setVisibility(View.VISIBLE);
-						tvSub2.setVisibility(View.VISIBLE);
-						tvSub1.setText(getString(R.string.trading_at));
-						tvSub2.setText(fTrading);
-					}
-				});
-				//end of satoshi GUI items
-
-				//start of fiat network items
-
-
-				ArrayList<JSONObject> fiatPriceArray = new ArrayList<>();
-				try {
-					fiatPriceArray = Utilities.getDogePrice(preferredCurrency);
-				} catch (JSONException | InterruptedException | ExecutionException |
-						TimeoutException e) {
-					e.printStackTrace();
-				}
-				//end of fiat network items
-
-				//start of fiat GUI items
-				String worth = "";
-				try {
-					for (JSONObject o : fiatPriceArray) {
-						Log.d("JSON", o.toString());
-						double price = o.getDouble("price");
-						double sat = price * 1000;
-
-						Date d = new Date(o.getLong("time"));
-						String sDate = new SimpleDateFormat("HH:mm:ss").format(d);
-						worth += format("%.5f", sat) + " on " + o.getString("exchange") + " at " +
-								sDate + Utilities.newLine;
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					worth = "Network error";
-					getActivity().runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							tvSub2.setTextColor(getResources().getColor(R.color.red));
-						}
-					});
-
-				}
-				final String fWorth = worth;
-
-				getActivity().runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						progFiat.setVisibility(View.GONE);
-						tvFiat1.setVisibility(View.VISIBLE);
-						tvFiat2.setVisibility(View.VISIBLE);
-						tvFiat1.setText(getString(R.string.worth_1000));
-						tvFiat2.setText(fWorth.trim());
-					}
-				});
-
+		@Override
+		protected String doInBackground(TextView... params) {
+			tv = params[0];
+			String urlToGet;
+			if (tv == tvSatSub2) {
+				urlToGet = urlGetDogeSat;
+			} else {
+				urlToGet = urlGetDogeLocal;
 			}
-		});
-		t.start();
 
+			try {
+				String s = new String(getUrlBytes(urlToGet));
+				//Log.i("HTTP", s);
+				//we have webdata, now to convert to JSON and parse
+				JSONObject object = new JSONObject(s);
+				if (object.getString("status").equals("success")) {
+					JSONObject data = object.getJSONObject("data");
+					JSONArray priceArray = data.getJSONArray("prices");
+
+					if (priceArray.length() == 0) {
+						//no trades found
+						return getResources().getString(R.string.no_trades_found);
+					} else {
+						s = "";
+						for (int i = 0; i < priceArray.length(); i++) {
+							JSONObject o = priceArray.getJSONObject(i);
+							double price;
+							if (tv == tvSatSub2) {
+								price = o.getDouble("price") * 100000000;
+								int intPrice = (int) Math.round(price);
+								s += intPrice + " on " + o.getString("exchange");
+								s += Utilities.newLine;
+							} else {
+								price = o.getDouble("price") * 1000;
+								s += price + " on " + o.getString("exchange");
+								s += Utilities.newLine;
+							}
+
+						}
+						return s;
+					}
+
+				} else {
+					//api fail
+					return getResources().getString(R.string.api_fail);
+				}
+
+			} catch (ConnectException e) {
+				return getResources().getString(R.string.network_fail);
+			} catch (UnknownHostException e){
+				return getResources().getString(R.string.no_network);
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+				return getResources().getString(R.string.error);
+			}
+
+		}
+
+
+		@Override
+		protected void onPostExecute(final String s) {
+			if(isAdded()) {
+				if (s != null) {
+					if (tv == tvSatSub2) {
+						pbSat.setVisibility(View.GONE);
+						tvSatSub1.setVisibility(View.VISIBLE);
+						tvSatSub2.setVisibility(View.VISIBLE);
+						tvSatSub1.setText(getResources().getString(R.string.trading_at));
+						tvSatSub2.setText(s);
+					} else if (tv == tvFiatSub2) {
+						pbFiat.setVisibility(View.GONE);
+						SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences
+								(getActivity());
+						String local = prefs.getString(PREF_LOCAL_CURRENCY, "USD");
+						tvFiatSub1.setVisibility(View.VISIBLE);
+						tvFiatSub2.setVisibility(View.VISIBLE);
+						tvFiatTitle.setText(local);
+						tvFiatSub1.setText(getResources().getString(R.string.worth_1000));
+						tvFiatSub2.setText(s);
+					}
+				}
+				if(mMenu != null) {
+					MenuItem itemRefresh = mMenu.findItem(R.id.menu_currency_refresh);
+					itemRefresh.setActionView(null);
+				}
+			}
+		}
+
+		byte[] getUrlBytes(String urlSpec) throws IOException {
+			URL url = new URL(urlSpec);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+			try {
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				InputStream in = connection.getInputStream();
+				if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+					Log.e("Fetchr", connection.getResponseMessage() + " : " + connection
+							.getResponseCode());
+					return null;
+				}
+
+				int bytesRead = 0;
+				byte[] buffer = new byte[1024];
+				while ((bytesRead = in.read(buffer)) > 0) {
+					out.write(buffer, 0, bytesRead);
+				}
+				out.close();
+				return out.toByteArray();
+			} finally {
+				connection.disconnect();
+			}
+		}
 	}
 
 }

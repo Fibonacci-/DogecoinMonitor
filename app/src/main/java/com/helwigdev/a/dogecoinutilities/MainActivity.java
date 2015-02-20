@@ -2,13 +2,13 @@ package com.helwigdev.a.dogecoinutilities;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.app.FragmentManager;
+import android.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,10 +16,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -32,11 +32,18 @@ public class MainActivity extends Activity
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
+	public NavigationDrawerFragment getNavigationDrawerFragment(){
+		return mNavigationDrawerFragment;
+	}
+
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
     private int positionBeforeScan;
+	AdView mAdView;
+	FragmentSingleton mFragmentSingleton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,28 +57,62 @@ public class MainActivity extends Activity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+		mAdView = (AdView) findViewById(R.id.ad_main);
+		AdRequest adRequest = new AdRequest.Builder()
+				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+				.addTestDevice("827EB1A5D0932A3128F6670540C5EFEC")
+				.build();
+		mAdView.loadAd(adRequest);
+
+		mFragmentSingleton = FragmentSingleton.get();
     }
 
-    @Override
+	@Override
+	protected void onPause() {
+		mAdView.pause();
+		//mFragmentSingleton.invalidate();
+		super.onPause();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mAdView.resume();
+	}
+
+	@Override
+	protected void onDestroy() {
+		mAdView.destroy();
+		if(isFinishing()) {
+			mFragmentSingleton.invalidate();
+		}
+		super.onDestroy();
+	}
+
+	@Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
+		if(mFragmentSingleton == null){
+			mFragmentSingleton = FragmentSingleton.get();
+		}
         switch (position) {
             case 0:
                 //insert currency fragment
 				positionBeforeScan = position;
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, FragmentHandler.getInstance().getCurrencyFragment(position + 1))
-                        .commit();
-
+				fragmentManager.beginTransaction()
+						.replace(R.id.container, mFragmentSingleton.getCurrencyFragment())
+						.commit();
+				onSectionAttached(position + 1);
                 break;
             case 1:
                 //insert pool fragment
 				positionBeforeScan = position;
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, FragmentHandler.getInstance().getPoolFragment(position + 1))
-                        .commit();
-
+				fragmentManager.beginTransaction()
+						.replace(R.id.container, mFragmentSingleton.getWalletFragment())
+						.commit();
+				onSectionAttached(position + 1);
                 break;
             case 2:
                 //hacky bit to re-select the previous nav drawer item
@@ -83,12 +124,13 @@ public class MainActivity extends Activity
                 integrator.initiateScan();
 				break;
 			case 3:
-				//hacky bit to re-select the previous nav drawer item
-				onNavigationDrawerItemSelected(positionBeforeScan);
-				onSectionAttached(positionBeforeScan + 1);
-				mNavigationDrawerFragment.setItemPosition(positionBeforeScan);
-				Intent settingsIntent = new Intent(this, SettingsActivity.class);
-				startActivity(settingsIntent);
+
+				//insert settings fragment
+				positionBeforeScan = position;
+//				fragmentManager.beginTransaction()
+//						.replace(R.id.container, mFragmentSingleton.getSettingsFragment())
+//						.commit();//TODO find a support replacement for PreferenceFragment
+				onSectionAttached(position + 1);
 				break;
 
         }
@@ -97,24 +139,28 @@ public class MainActivity extends Activity
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanResult != null && intent != null) {
-            // handle scan result
-            Toast.makeText(getApplicationContext(), scanResult.toString(), Toast.LENGTH_SHORT).show();
-            Log.d("QR",scanResult.getContents());
-			if(IntentIntegrator.QR_CODE_TYPES.contains(scanResult.getFormatName())){
-				//could be API key or address
-				String[] key = scanResult.getContents().split("\\|");
-				for(int i = 0; i < key.length; i++){
-					Log.d("Key", i + ": " + key[i]);
+		if(resultCode != Activity.RESULT_OK) return;
+		if(requestCode == IntentIntegrator.REQUEST_CODE) {
+			IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+
+			if (scanResult != null && intent != null) {
+
+				// handle scan result
+				Toast.makeText(getApplicationContext(), scanResult.toString(), Toast.LENGTH_SHORT).show();
+				Log.d("QR", scanResult.getContents());
+				if (IntentIntegrator.QR_CODE_TYPES.contains(scanResult.getFormatName())) {
+					//could be API key or address
+					String[] key = scanResult.getContents().split("\\|");
+					for (int i = 0; i < key.length; i++) {
+						Log.d("Key", i + ": " + key[i]);
+					}
+				} else if (IntentIntegrator.DATA_MATRIX_TYPES.contains(scanResult.getFormatName())) {
+					//probably website-generated code to import address
 				}
-			} else if(IntentIntegrator.DATA_MATRIX_TYPES.contains(scanResult.getFormatName())){
-				//probably website-generated code to import address
+
 			}
-
-        }
-        finishActivity(requestCode);
-
+			finishActivity(requestCode);
+		}
         //hacky bit to get around previous hacky bit to get around the fact that Android doesn't like launching intents from a nav drawer
         if(mNavigationDrawerFragment.isDrawerOpen()){
             DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -128,13 +174,13 @@ public class MainActivity extends Activity
                 mTitle = getString(R.string.title_section_currency);
                 break;
             case 2:
-                mTitle = getString(R.string.title_section_pool);
+                mTitle = getString(R.string.title_section_wallet);
                 break;
             case 3:
                 mTitle = getString(R.string.title_section_scan);
                 break;
 			case 4:
-				mTitle = getString(R.string.title_section_currency);
+				mTitle = getString(R.string.title_section_settings);
 				break;
 
         }

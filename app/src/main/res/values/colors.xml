@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <drawable name="amber_50">#FFF8E1</drawable>
+    <drawable name="amber_50_transparent">#cffff8e1</drawable>
     <drawable name="amber_100">#FFECB3</drawable>
+    <drawable name="amber_100_transparent">#cfffecb3</drawable>
     <drawable name="amber_200">#FFE082</drawable>
     <drawable name="amber_300">#FFD54F</drawable>
+    <drawable name="amber_300_transparent">#cfffd54f</drawable>
     <drawable name="amber_400">#FFCA28</drawable>
     <drawable name="amber_500">#FFC107</drawable>
     <drawable name="amber_600">#FFB300</drawable>

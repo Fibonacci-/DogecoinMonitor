@@ -302,37 +302,7 @@ public class Utilities {
 		return (JSONArray) ft.get(60, TimeUnit.SECONDS);
 	}
 
-	/**
-	 * Takes a few parsed pool API strings<br><br>
-	 * Returns ArrayList of all workers found in that pool
-	 *
-	 * @param poolUrl The {@link java.lang.String} URL to request
-	 * @return An {@link java.util.ArrayList} of {@link com.helwigdev.a.dogecoinutilities
-	 * .PoolWorker} objects
-	 * @throws JSONException        Thrown if the returned data cannot be parsed as a JSON object
-	 *                              or array
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
-	 */
-	public static ArrayList<PoolWorker> getWorkerInfo(String poolUrl,
-													  String poolAPIKey) throws JSONException,
-			InterruptedException, ExecutionException, TimeoutException {
-		String urlToRequest = poolUrl + "&action=getuserworkers&api_key=" + poolAPIKey;
-		JSONObject o = getJsonObject(urlToRequest);
-		ArrayList<PoolWorker> workerArray = new ArrayList<>();
 
-		JSONArray a = o.getJSONObject("getuserworkers").getJSONArray("data");
-		int length = a.length();
-		for (int i = 0; i < length; i++) {
-			o = a.getJSONObject(i);
-			String name = o.getString("username");
-			double hashrate = o.getDouble("hashrate");
-			workerArray.add(new PoolWorker(name, hashrate));
-		}
-
-		return workerArray;
-	}
 
 	/**
 	 * Gets a wallet balance from dogechain.info

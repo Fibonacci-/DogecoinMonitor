@@ -1,7 +1,6 @@
 package com.helwigdev.a.dogecoinutilities;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,9 +36,15 @@ public class NavArrayAdapter extends ArrayAdapter<String> {
 			holder = (Holder) row.getTag();
 		}
 		holder.mTitle.setText(titleArray[position]);
-		if(position == 2) {
-			holder.mTitle.setCompoundDrawablesWithIntrinsicBounds(R.drawable.camera, 0, 0, 0);
-		}
+//		if(position == 0) {
+//			holder.mTitle.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_, 0, 0, 0);
+//		} else if(position == 1){
+//			holder.mTitle.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_add, 0, 0, 0);
+//		} else if(position == 2) {
+//			holder.mTitle.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_add, 0, 0, 0);
+//		} else if (position == 3){
+//			holder.mTitle.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_preferences, 0, 0, 0);
+//		}//no icons.
 
 		return row;
 

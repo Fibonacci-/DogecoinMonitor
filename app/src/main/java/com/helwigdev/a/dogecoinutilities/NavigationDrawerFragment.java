@@ -18,9 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -107,7 +105,7 @@ public class NavigationDrawerFragment extends Fragment {
 				new String[]{
 						getString(R.string.title_section_currency),
 						getString(R.string.title_section_wallet),
-						getString(R.string.title_section_scan),
+						getString(R.string.title_section_add_wallet),
 						getString(R.string.title_section_settings)//TODO finish Settings menu
 				}));
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);

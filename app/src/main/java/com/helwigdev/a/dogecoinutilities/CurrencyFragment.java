@@ -1,11 +1,11 @@
 package com.helwigdev.a.dogecoinutilities;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -18,8 +18,6 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.apache.http.HttpConnection;
-import org.apache.http.HttpConnectionMetrics;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -30,7 +28,6 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 
 /**
  * Created by Tyler on 2/19/2015.
@@ -184,7 +181,7 @@ public class CurrencyFragment extends Fragment {
 								s += Utilities.newLine;
 							} else {
 								price = o.getDouble("price") * 1000;
-								s += price + " on " + o.getString("exchange");
+								s += String.format("%.5f", price) + " on " + o.getString("exchange");//account for silly double multiplication
 								s += Utilities.newLine;
 							}
 
@@ -234,7 +231,7 @@ public class CurrencyFragment extends Fragment {
 				}
 				if(mMenu != null) {
 					MenuItem itemRefresh = mMenu.findItem(R.id.menu_currency_refresh);
-					itemRefresh.setActionView(null);
+					if(itemRefresh!=null) itemRefresh.setActionView(null);
 				}
 			}
 		}

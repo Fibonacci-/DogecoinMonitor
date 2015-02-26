@@ -242,16 +242,16 @@ public class Utilities {
 	 * @param codeResult The {@link java.lang.String} to check.
 	 * @return The type of code. Types can be found in the Utilities class.
 	 */
-	@Deprecated
+	//TODO change to a better way of checking type
 	public static int checkQRCodeType(String codeResult) {
 		// returns 0 if not recognized,
 		// returns 1 if wallet address,
 		// returns 2 if pool API key
 		//
-		if (codeResult.substring(0, 1).equals("|")) {
+		/**if (codeResult.substring(0, 1).equals("|")) {//no more pools :(
 			return QR_TYPE_POOL_API_KEY;
-		} else if (codeResult.substring(0, 9).equals("dogecoin:")) {
-			Log.d("Utilities", "Detected client URI");
+		} else*/ if (codeResult.substring(0, 9).equals("dogecoin:")) {
+			//Log.d("Utilities", "Detected client URI");
 			return QR_TYPE_CLIENT_WALLET_URI;
 		} else if (codeResult.substring(0, 1).equals("D")) {
 			return QR_TYPE_WALLET_ADDRESS;

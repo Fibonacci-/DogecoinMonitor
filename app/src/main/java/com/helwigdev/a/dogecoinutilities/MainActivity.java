@@ -2,13 +2,13 @@ package com.helwigdev.a.dogecoinutilities;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.app.FragmentManager;
-import android.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,9 +23,16 @@ import com.google.android.gms.ads.AdView;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import org.json.JSONArray;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+	protected static final String TAG = "MainActivity";
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -42,12 +49,15 @@ public class MainActivity extends Activity
     private CharSequence mTitle;
     private int positionBeforeScan;
 	AdView mAdView;
-	FragmentSingleton mFragmentSingleton;
+	static FragmentSingleton mFragmentSingleton;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+		//TODO add welcome dialog
+
 		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_main);
         mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -65,13 +75,13 @@ public class MainActivity extends Activity
 				.build();
 		mAdView.loadAd(adRequest);
 
-		mFragmentSingleton = FragmentSingleton.get();
+		mFragmentSingleton = FragmentSingleton.get(this);
     }
 
 	@Override
 	protected void onPause() {
 		mAdView.pause();
-		//mFragmentSingleton.invalidate();
+		mFragmentSingleton.saveData();
 		super.onPause();
 	}
 
@@ -95,7 +105,7 @@ public class MainActivity extends Activity
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
 		if(mFragmentSingleton == null){
-			mFragmentSingleton = FragmentSingleton.get();
+			mFragmentSingleton = FragmentSingleton.get(this);
 		}
         switch (position) {
             case 0:
@@ -148,15 +158,7 @@ public class MainActivity extends Activity
 				// handle scan result
 				Toast.makeText(getApplicationContext(), scanResult.toString(), Toast.LENGTH_SHORT).show();
 				Log.d("QR", scanResult.getContents());
-				if (IntentIntegrator.QR_CODE_TYPES.contains(scanResult.getFormatName())) {
-					//could be API key or address
-					String[] key = scanResult.getContents().split("\\|");
-					for (int i = 0; i < key.length; i++) {
-						Log.d("Key", i + ": " + key[i]);
-					}
-				} else if (IntentIntegrator.DATA_MATRIX_TYPES.contains(scanResult.getFormatName())) {
-					//probably website-generated code to import address
-				}
+				new VerifyAndAdd(Utilities.checkQRCodeType(scanResult.getContents())).execute(scanResult.getContents());
 
 			}
 			finishActivity(requestCode);
@@ -177,7 +179,7 @@ public class MainActivity extends Activity
                 mTitle = getString(R.string.title_section_wallet);
                 break;
             case 3:
-                mTitle = getString(R.string.title_section_scan);
+                mTitle = getString(R.string.title_section_add_wallet);
                 break;
 			case 4:
 				mTitle = getString(R.string.title_section_settings);
@@ -269,5 +271,106 @@ public class MainActivity extends Activity
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
+
+	public static class VerifyAndAdd extends AsyncTask<String, Void, Void>{
+		public VerifyAndAdd(int type){
+			mType = type;
+		}
+
+		int mType;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+		}
+
+		@Override
+		protected Void doInBackground(String... params) {
+
+			switch (mType){
+				case Utilities.QR_TYPE_CLIENT_WALLET_URI:
+					Log.i(TAG, "Unrecognized Wallet URI");
+					for(String s : params){
+						addWalletAddress(s.replace("dogecoin:", ""));
+					}
+					break;
+
+				case Utilities.QR_TYPE_JSON_ADDRESSES:
+					Log.i(TAG, "Got type JSON addresses");
+					try{
+						//should be an array
+						JSONArray array = new JSONArray(params[0]);
+						for(int i = 0; i < array.length(); i++){
+							addWalletAddress(array.getString(i));
+						}
+					} catch (Exception e){
+						Log.e(TAG, e.toString());
+					}
+					break;
+
+				case Utilities.QR_TYPE_WALLET_ADDRESS:
+					Log.i(TAG, "Got type Wallet Address");
+					for(String s : params){
+						addWalletAddress(s);
+					}
+					break;
+
+				case Utilities.QR_TYPE_POOL_API_KEY:
+					Log.i(TAG, "Got type Pool API key");
+					for(String s : params){
+						addPool(s);
+					}
+					break;
+				case Utilities.QR_TYPE_UNKNOWN:
+					Log.i(TAG, "Unrecognized QR type");
+					break;
+				default:
+					Log.e(TAG, "VerifyAndAdd called incorrectly: aborting");
+					break;
+			}
+			return null;
+		}
+
+		/**
+		 * NOT FOR USE ON MAIN THREAD
+		 *
+		 * NETWORK ACTIVITY IS DONE IN THIS METHOD
+		 *
+		 * Verifies a given Dogecoin address and adds it to the list, if it is valid
+		 *
+		 * @param address The address to add
+		 */
+		private void addWalletAddress(String address) {
+			String url = "https://dogechain.info/chain/Dogecoin/q/checkaddress/" + address;
+
+			try {
+				HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+				connection.connect();
+				if(connection.getResponseCode() != HttpURLConnection.HTTP_OK){
+					Log.e(TAG, "Invalid address: response is " + connection.getResponseCode());
+					return;
+				}
+				mFragmentSingleton.addWallet(address);
+				Log.i(TAG, "Address is OK: " + address);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		/**
+		 * NOT FOR USE ON MAIN THREAD
+		 *
+		 * NETWORK ACTIVITY IS DONE IN THIS METHOD
+		 *
+		 * Verifies a given Dogecoin address and adds it to the list, if it is valid
+		 *
+		 * @param apiData The pool API MPOS string to add
+		 */
+		private void addPool(String apiData){
+
+		}
+
+
+	}
 
 }

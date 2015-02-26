@@ -5,7 +5,7 @@
     <string name="title_section_currency">Currency</string>
     <string name="title_section_pool">Pool</string>
     <string name="title_section_settings">Settings</string>
-    <string name="title_section_scan">Scan a Code</string>
+    <string name="title_section_add_wallet">Add wallet</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
@@ -30,7 +30,7 @@
     <string name="satoshi_desc">Show price in Satoshi instead of local fiat</string>
     <string name="trading_at">Doge is trading at:</string>
     <string name="worth_1000">1000 Doge is worth:</string>
-    <string name="title_section_wallet">Wallet</string>
+    <string name="title_section_wallet">Wallets</string>
 
     <string name="ad_id_main">ca-app-pub-5637328886369714/7331160783 </string>
     <string name="api_fail">Block.io lookup failed</string>
@@ -39,5 +39,8 @@
     <string name="network_fail">Network failure.</string>
     <string name="refresh">Refresh</string>
     <string name="no_network">Network unavailable</string>
+
+    <string name="wallet_total_doge_header_format">%1$f in wallets</string>
+    <string name="loading_wallet">Loading wallet data…</string>
 
 </resources>

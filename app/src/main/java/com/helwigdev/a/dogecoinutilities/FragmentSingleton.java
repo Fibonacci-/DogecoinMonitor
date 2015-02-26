@@ -1,7 +1,10 @@
 package com.helwigdev.a.dogecoinutilities;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -60,8 +63,13 @@ public class FragmentSingleton {
 		return mAddressList;
 	}
 
-	public void addWallet(String address) {
-		mAddressList.add(address);
+	public boolean addWallet(String address) {
+		if(!mAddressList.contains(address)) {
+			mAddressList.add(address);//only add addresses that we don't have yet
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public void addPool(String apiString) {

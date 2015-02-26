@@ -14,5 +14,6 @@
     <drawable name="amber_800">#FF8F00</drawable>
     <drawable name="amber_900">#FF6F00</drawable>
     <color name="red">#ff0000</color>
+    <color name="amber_700_color">#FFA000</color>
 
 </resources>

@@ -22,14 +22,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-        <LinearLayout
-            android:orientation="horizontal"
+        <TableLayout
+            android:paddingTop="50dp"
+            android:stretchColumns="1"
+            android:divider="@drawable/amber_300_transparent"
+            android:id="@+id/tl_wallet_total_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!--actually i'm not really sure how I want to lay this out-->
-
-        </LinearLayout>
+            </TableLayout>
 
     </android.support.v7.widget.CardView>
 

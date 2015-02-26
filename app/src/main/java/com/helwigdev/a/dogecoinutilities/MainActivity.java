@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -24,6 +26,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -51,6 +54,7 @@ public class MainActivity extends Activity
 	AdView mAdView;
 	static FragmentSingleton mFragmentSingleton;
 
+	private int rotationBeforeScan = Surface.ROTATION_0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,6 +133,9 @@ public class MainActivity extends Activity
                 onNavigationDrawerItemSelected(positionBeforeScan);
                 onSectionAttached(positionBeforeScan + 1);
                 mNavigationDrawerFragment.setItemPosition(positionBeforeScan);
+
+				rotationBeforeScan = getWindowManager().getDefaultDisplay().getRotation();
+
                 //scan new QR and handle result
                 IntentIntegrator integrator = new IntentIntegrator(this);
                 integrator.initiateScan();
@@ -149,6 +156,9 @@ public class MainActivity extends Activity
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		if(rotationBeforeScan == 0){
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
 		if(resultCode != Activity.RESULT_OK) return;
 		if(requestCode == IntentIntegrator.REQUEST_CODE) {
 			IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
@@ -272,7 +282,7 @@ public class MainActivity extends Activity
         }
     }
 
-	public static class VerifyAndAdd extends AsyncTask<String, Void, Void>{
+	public class VerifyAndAdd extends AsyncTask<String, Void, Void>{
 		public VerifyAndAdd(int type){
 			mType = type;
 		}
@@ -301,7 +311,8 @@ public class MainActivity extends Activity
 						//should be an array
 						JSONArray array = new JSONArray(params[0]);
 						for(int i = 0; i < array.length(); i++){
-							addWalletAddress(array.getString(i));
+							JSONObject o = array.getJSONObject(i);
+							addWalletAddress(o.getString("address"));
 						}
 					} catch (Exception e){
 						Log.e(TAG, e.toString());
@@ -350,7 +361,16 @@ public class MainActivity extends Activity
 					Log.e(TAG, "Invalid address: response is " + connection.getResponseCode());
 					return;
 				}
-				mFragmentSingleton.addWallet(address);
+
+				if(!mFragmentSingleton.addWallet(address)){
+					//it's already been added
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(getApplicationContext(), "Address has already been added!", Toast.LENGTH_SHORT).show();
+						}
+					});
+				}
 				Log.i(TAG, "Address is OK: " + address);
 			} catch (IOException e) {
 				e.printStackTrace();

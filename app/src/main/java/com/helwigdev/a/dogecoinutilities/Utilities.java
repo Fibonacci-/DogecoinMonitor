@@ -250,7 +250,7 @@ public class Utilities {
 		//
 		/**if (codeResult.substring(0, 1).equals("|")) {//no more pools :(
 			return QR_TYPE_POOL_API_KEY;
-		} else*/ if (codeResult.substring(0, 9).equals("dogecoin:")) {
+		} else*/ if (codeResult.length() > 9 && codeResult.substring(0, 9).equals("dogecoin:")) {
 			//Log.d("Utilities", "Detected client URI");
 			return QR_TYPE_CLIENT_WALLET_URI;
 		} else if (codeResult.substring(0, 1).equals("D")) {

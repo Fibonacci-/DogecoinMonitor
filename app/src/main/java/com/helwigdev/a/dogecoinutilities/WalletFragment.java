@@ -2,6 +2,7 @@ package com.helwigdev.a.dogecoinutilities;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,7 +28,7 @@ import java.util.ArrayList;
  * Created by Tyler on 2/19/2015.
  * All code herein copyright Helwig Development 2/19/2015
  */
-public class WalletFragment extends Fragment implements WalletListener {
+public class WalletFragment extends Fragment implements WalletListener, BtcFiatListener {
 	private static final String TAG = "WalletFragment";
 	private static final String ARG_SECTION_NUMBER = "section_number";
 	private static final String BLOCK_IO_KEY = "6411-6b24-8a06-218e";
@@ -40,6 +41,9 @@ public class WalletFragment extends Fragment implements WalletListener {
 	TextView tvTotalBtcHeader;
 
 	ArrayList<String> mWalletList;
+	ArrayList<String[]> mAmountList;
+	int mListLength = Integer.MAX_VALUE;
+	int mTotalAddressGet = 0;
 
 	private double totalDoge = 0.0;
 	private double totalFiat = 0.0;
@@ -64,6 +68,9 @@ public class WalletFragment extends Fragment implements WalletListener {
 
 		mFragmentSingleton = FragmentSingleton.get(getActivity());
 		mWalletList = mFragmentSingleton.getAddressList();
+		mAmountList = new ArrayList<>();
+		mListLength = mWalletList.size();
+		mTotalAddressGet = 0;
 		mTotalDataTable = (TableLayout) v.findViewById(R.id.tl_wallet_total_data);
 
 		tvTotalFiatHeader = (TextView) v.findViewById(R.id.tv_wallet_total_fiat_header);
@@ -138,30 +145,70 @@ public class WalletFragment extends Fragment implements WalletListener {
 		tvTotalDogeHeader.setText(String.format(getResources().getString(R.string
 				.wallet_total_doge_header_format), totalDoge));
 
-		new GetConversionAmounts().execute(balance);
+		mTotalAddressGet++;
+		mAmountList.add(new String[]{address, balance});
+		if (mTotalAddressGet == mListLength) {
+			//trigger BTC and fiat
+		}
+	}
+
+	@Override
+	public void onGetBtcFiatValues(String address, String btcValue, String fiatValue) {
 
 	}
 
+	public static class GetBtcFiat extends AsyncTask<ArrayList<String[]>, Void, ArrayList<String[]>> {
 
-	public static class GetConversionAmounts extends AsyncTask<String, Void, String[]> {
-		String btc = "https://block.io/api/v1/get_current_price/?api_key=" + BLOCK_IO_KEY +
-				"&price_base=" + "BTC";
-		String fiat = "https://block.io/api/v1/get_current_price/?api_key=" + BLOCK_IO_KEY +
-				"&price_base=" + PreferenceManager.getDefaultSharedPreferences(mActivity)
-				.getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
-
-		protected String[] doInBackground(String... params) {
-			for(String s : params){
-				HttpURLConnection connection = null;
-
-			}
+		public GetBtcFiat(BtcFiatListener listener, Context c) {
+			mListener = listener;
+			mContext = c;
 		}
 
+		BtcFiatListener mListener;
+		Context mContext;
+
+		@SafeVarargs
 		@Override
-		protected void onPostExecute(String[] s) {
-			super.onPostExecute(s);
+		protected final ArrayList<String[]> doInBackground(ArrayList<String[]>... params) {
+			ArrayList<String[]> toReturn = new ArrayList<>();
+			for (ArrayList<String[]> a : params) {
+				for (String[] s : a) {
+					String address = s[0];
+					String balance = s[1];
+
+					if (address == null || balance == null) return null;
+
+					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+					String fiatBase = prefs.getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
+					String btcUrl = "https://block" +
+							".io/api/v1/get_current_price/?api_key=6411-6b24-8a06-218e&price_base=BTC";
+					String fiatUrl = "https://block" +
+							".io/api/v1/get_current_price/?api_key=6411-6b24-8a06-218e&price_base=" + fiatBase;
+					HttpURLConnection btcConnection = null;
+					HttpURLConnection fiatConnection = null;
+					try {
+						btcConnection = (HttpURLConnection) new URL(btcUrl).openConnection();
+						fiatConnection = (HttpURLConnection) new URL(fiatUrl).openConnection();
+
+
+					}catch (Exception e){
+							e.printStackTrace();
+						return null;
+					} finally {
+						if(btcConnection != null){
+							btcConnection.disconnect();
+						}
+						if(fiatConnection != null){
+							fiatConnection.disconnect();
+						}
+					}
+
+				}
+			}
+			return null;
 		}
 	}
+
 
 	public static class GetWalletBalance extends AsyncTask<String, Void, String> {
 

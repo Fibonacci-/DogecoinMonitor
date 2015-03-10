@@ -144,9 +144,9 @@ public class MainActivity extends Activity
 
 				//insert settings fragment
 				positionBeforeScan = position;
-//				fragmentManager.beginTransaction()
-//						.replace(R.id.container, mFragmentSingleton.getSettingsFragment())
-//						.commit();//TODO find a support replacement for PreferenceFragment
+				fragmentManager.beginTransaction()
+						.replace(R.id.container, mFragmentSingleton.getSettingsFragment())
+						.commit();
 				onSectionAttached(position + 1);
 				break;
 
@@ -219,8 +219,7 @@ public class MainActivity extends Activity
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
-			//we don't need a menu right now TODO enable this when settings are finished
-            //getMenuInflater().inflate(R.menu.main, menu);
+            getMenuInflater().inflate(R.menu.main, menu);
             restoreActionBar();
             return true;
         }

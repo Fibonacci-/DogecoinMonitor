@@ -2,9 +2,10 @@ package com.helwigdev.a.dogecoinutilities;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.graphics.Color;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.TypedValue;
@@ -12,7 +13,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -30,11 +30,20 @@ import java.util.ArrayList;
 public class WalletFragment extends Fragment implements WalletListener {
 	private static final String TAG = "WalletFragment";
 	private static final String ARG_SECTION_NUMBER = "section_number";
+	private static final String BLOCK_IO_KEY = "6411-6b24-8a06-218e";
 	FragmentSingleton mFragmentSingleton;
+	static Activity mActivity;
 
 	TableLayout mTotalDataTable;
+	TextView tvTotalDogeHeader;
+	TextView tvTotalFiatHeader;
+	TextView tvTotalBtcHeader;
 
 	ArrayList<String> mWalletList;
+
+	private double totalDoge = 0.0;
+	private double totalFiat = 0.0;
+	private double totalBtc = 0.0;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -47,13 +56,26 @@ public class WalletFragment extends Fragment implements WalletListener {
 							 Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_wallet, container, false);
 
+		mActivity = getActivity();
+
+		totalDoge = 0.0;
+		totalFiat = 0.0;
+		totalBtc = 0.0;
+
 		mFragmentSingleton = FragmentSingleton.get(getActivity());
+		mWalletList = mFragmentSingleton.getAddressList();
 		mTotalDataTable = (TableLayout) v.findViewById(R.id.tl_wallet_total_data);
 
-		TextView tvText = (TextView) v.findViewById(R.id.tv_wallet_total_fiat_header);
+		tvTotalFiatHeader = (TextView) v.findViewById(R.id.tv_wallet_total_fiat_header);
+		tvTotalDogeHeader = (TextView) v.findViewById(R.id.tv_wallet_total_doge_header);
+		tvTotalBtcHeader = (TextView) v.findViewById(R.id.tv_wallet_total_btc_header);
 
-		mWalletList = mFragmentSingleton.getAddressList();
-		String toAdd = "";
+		tvTotalDogeHeader.setText(getResources().getText(R.string.totalDogePreformat));
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		String localCurrency = prefs.getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
+		tvTotalFiatHeader.setText(String.format(getResources().getString(R.string
+				.wallet_total_fiat), localCurrency));
+		tvTotalBtcHeader.setText(getResources().getText(R.string.wallet_total_btc));
 
 		for (String s : mWalletList) {
 			new GetWalletBalance(this).execute(s);
@@ -80,7 +102,7 @@ public class WalletFragment extends Fragment implements WalletListener {
 
 	@Override
 	public void onGetAddressBalance(String address, String balance) {
-		//TODO
+
 		/* Create a new row to be added. */
 		TableRow tr = new TableRow(getActivity());
 		tr.setLayoutParams(new TableRow.LayoutParams(
@@ -106,6 +128,39 @@ public class WalletFragment extends Fragment implements WalletListener {
 		mTotalDataTable.addView(tr);
 		mTotalDataTable.addView(v);
 		Log.i(TAG, "Added new table row");
+
+		try {
+			totalDoge += Double.valueOf(balance);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		tvTotalDogeHeader.setText(String.format(getResources().getString(R.string
+				.wallet_total_doge_header_format), totalDoge));
+
+		new GetConversionAmounts().execute(balance);
+
+	}
+
+
+	public static class GetConversionAmounts extends AsyncTask<String, Void, String[]> {
+		String btc = "https://block.io/api/v1/get_current_price/?api_key=" + BLOCK_IO_KEY +
+				"&price_base=" + "BTC";
+		String fiat = "https://block.io/api/v1/get_current_price/?api_key=" + BLOCK_IO_KEY +
+				"&price_base=" + PreferenceManager.getDefaultSharedPreferences(mActivity)
+				.getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
+
+		protected String[] doInBackground(String... params) {
+			for(String s : params){
+				HttpURLConnection connection = null;
+
+			}
+		}
+
+		@Override
+		protected void onPostExecute(String[] s) {
+			super.onPostExecute(s);
+		}
 	}
 
 	public static class GetWalletBalance extends AsyncTask<String, Void, String> {
@@ -132,7 +187,8 @@ public class WalletFragment extends Fragment implements WalletListener {
 					ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 					if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-						Log.e("TAG", "Error getting wallet balance: " + connection.getResponseMessage() + " : " + connection.getResponseCode());
+						Log.e("TAG", "Error getting wallet balance: " + connection
+								.getResponseMessage() + " : " + connection.getResponseCode());
 						return null;
 					}
 					InputStream in = connection.getInputStream();

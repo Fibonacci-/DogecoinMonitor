@@ -106,7 +106,7 @@ public class NavigationDrawerFragment extends Fragment {
 						getString(R.string.title_section_currency),
 						getString(R.string.title_section_wallet),
 						getString(R.string.title_section_add_wallet),
-						getString(R.string.title_section_settings)//TODO finish Settings menu
+						getString(R.string.title_section_settings)
 				}));
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
 

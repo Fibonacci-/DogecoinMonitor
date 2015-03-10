@@ -35,7 +35,7 @@ import java.net.UnknownHostException;
  */
 public class CurrencyFragment extends Fragment {
 	private static final String ARG_SECTION_NUMBER = "section_number";
-	private static final String PREF_LOCAL_CURRENCY = "local_currency";
+	public static final String PREF_LOCAL_CURRENCY = "local_currency";
 	private ProgressBar pbSat;
 	private ProgressBar pbFiat;
 	private TextView tvSatSub1;

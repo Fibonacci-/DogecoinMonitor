@@ -31,7 +31,7 @@ import java.util.ArrayList;
  * Created by Tyler on 2/19/2015.
  * All code herein copyright Helwig Development 2/19/2015
  */
-public class WalletFragment extends Fragment implements WalletListener, CurrencyListener {
+public class WalletFragment extends Fragment implements WalletListener, WalletSecondaryListener {
 	private static final String TAG = "WalletFragment";
 	private static final String ARG_SECTION_NUMBER = "section_number";
 	private static final String BLOCK_IO_KEY = "6411-6b24-8a06-218e";
@@ -222,8 +222,11 @@ public class WalletFragment extends Fragment implements WalletListener, Currency
 
 			tvBtcHeader.setText(getResources().getString(R.string.wallet_total_btc));
 
-			tvBtcSub.setText(String.format(getResources().getString(R.string.wallet_total_btc_sub_format), totalBtc + ""));
-			tvFiatSub.setText(String.format(getResources().getString(R.string.wallet_total_fiat_sub_format), totalFiat + "", localCurrency));
+			String btcNumFormat = String.format("%.8f", totalBtc);
+			String fiatNumFormat = String.format("%.2f", totalFiat);
+
+			tvBtcSub.setText(String.format(getResources().getString(R.string.wallet_total_btc_sub_format), btcNumFormat));
+			tvFiatSub.setText(String.format(getResources().getString(R.string.wallet_total_fiat_sub_format), fiatNumFormat, localCurrency));
 
 			mTotalBtcTable.addView(trBtc);
 			mTotalBtcTable.addView(v);
@@ -242,10 +245,10 @@ public class WalletFragment extends Fragment implements WalletListener, Currency
 				"&price_base=" + PreferenceManager.getDefaultSharedPreferences(mActivity)
 				.getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
 
-		CurrencyListener mCurrencyListener;
+		WalletSecondaryListener mWalletSecondaryListener;
 
-		public GetConversionAmounts(CurrencyListener listener){
-			mCurrencyListener = listener;
+		public GetConversionAmounts(WalletSecondaryListener listener){
+			mWalletSecondaryListener = listener;
 		}
 
 		protected Float[] doInBackground(String... params) {
@@ -304,7 +307,7 @@ public class WalletFragment extends Fragment implements WalletListener, Currency
 
 		@Override
 		protected void onPostExecute(Float[] floats) {
-			mCurrencyListener.onGetBFBalance(floats);
+			mWalletSecondaryListener.onGetBFBalance(floats);
 		}
 	}
 

@@ -43,6 +43,9 @@
     <string name="wallet_total_doge_header_format">%1$f in wallets</string>
     <string name="wallet_total_fiat">Total converted to %1$s</string>
     <string name="wallet_total_btc">Total converted to BTC</string>
+    <string name="wallet_total_fiat_sub_format">%1$s %2$s after conversion</string>
+    <string name="wallet_total_btc_sub_format">%1$s BTC after conversion</string>
+
     <string name="loading_wallet">Loading wallet data…</string>
     <string name="totalDogePreformat">Total Dogecoin</string>
 

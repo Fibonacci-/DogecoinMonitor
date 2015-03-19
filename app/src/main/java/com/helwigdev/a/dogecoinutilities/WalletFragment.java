@@ -17,6 +17,10 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -27,7 +31,7 @@ import java.util.ArrayList;
  * Created by Tyler on 2/19/2015.
  * All code herein copyright Helwig Development 2/19/2015
  */
-public class WalletFragment extends Fragment implements WalletListener {
+public class WalletFragment extends Fragment implements WalletListener, CurrencyListener {
 	private static final String TAG = "WalletFragment";
 	private static final String ARG_SECTION_NUMBER = "section_number";
 	private static final String BLOCK_IO_KEY = "6411-6b24-8a06-218e";
@@ -35,6 +39,8 @@ public class WalletFragment extends Fragment implements WalletListener {
 	static Activity mActivity;
 
 	TableLayout mTotalDataTable;
+	TableLayout mTotalBtcTable;
+	TableLayout mTotalFiatTable;
 	TextView tvTotalDogeHeader;
 	TextView tvTotalFiatHeader;
 	TextView tvTotalBtcHeader;
@@ -65,6 +71,8 @@ public class WalletFragment extends Fragment implements WalletListener {
 		mFragmentSingleton = FragmentSingleton.get(getActivity());
 		mWalletList = mFragmentSingleton.getAddressList();
 		mTotalDataTable = (TableLayout) v.findViewById(R.id.tl_wallet_total_data);
+		mTotalBtcTable = (TableLayout) v.findViewById(R.id.tl_wallet_total_btc_data);
+		mTotalFiatTable = (TableLayout) v.findViewById(R.id.tl_wallet_total_fiat_data);
 
 		tvTotalFiatHeader = (TextView) v.findViewById(R.id.tv_wallet_total_fiat_header);
 		tvTotalDogeHeader = (TextView) v.findViewById(R.id.tv_wallet_total_doge_header);
@@ -138,28 +146,165 @@ public class WalletFragment extends Fragment implements WalletListener {
 		tvTotalDogeHeader.setText(String.format(getResources().getString(R.string
 				.wallet_total_doge_header_format), totalDoge));
 
-		new GetConversionAmounts().execute(balance);
+		new GetConversionAmounts(this).execute(balance);
+
+	}
+
+	public String getStringFromUrl(String url){
+		HttpURLConnection connection = null;
+		String toReturn = null;
+		try{
+			connection = (HttpURLConnection) new URL(url).openConnection();
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+				Log.e("TAG", "Error getting data from url: " + connection
+						.getResponseMessage() + " : " + connection.getResponseCode());
+				return null;
+			}
+			InputStream in = connection.getInputStream();
+			int bytesRead = 0;
+			byte[] buffer = new byte[1024];
+			while ((bytesRead = in.read(buffer)) > 0) {
+				out.write(buffer, 0, bytesRead);
+			}
+			out.close();
+			toReturn = out.toString();
+		} catch (Exception e){
+			return null;
+		}
+		return toReturn;
+	}
+
+	@Override
+	public void onGetBFBalance(Float[] balances) {
+		/* Create a new row to be added. */
+		if(balances != null) {
+			TableRow trBtc = new TableRow(getActivity());
+			trBtc.setLayoutParams(new TableRow.LayoutParams(
+					TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
+			TableRow trFiat = new TableRow(getActivity());
+			trFiat.setLayoutParams(new TableRow.LayoutParams(
+					TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
+			totalBtc += balances[0];
+			totalFiat += balances[1];
+
+			Log.i(TAG, "Got btc amount:" + balances[0] + " and fiat amount: " + balances[1]);
+
+			TextView tvBtc = new TextView(getActivity());
+			tvBtc.setText(balances[0] + "");
+			TextView tvFiat = new TextView(getActivity());
+			tvFiat.setText(balances[1] + "");
+
+			tvBtc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+			tvFiat.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+
+			trBtc.addView(tvBtc);
+			View v = new View(getActivity());
+			v.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 1));
+			v.setBackgroundColor(getResources().getColor(R.color.amber_700_color));
+
+			trFiat.addView(tvFiat);
+			View vv = new View(getActivity());
+			vv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 1));
+			vv.setBackgroundColor(getResources().getColor(R.color.amber_700_color));
+
+			TextView tvFiatHeader = (TextView) getActivity().findViewById(R.id.tv_wallet_total_fiat_header);
+
+			TextView tvBtcHeader = (TextView) getActivity().findViewById(R.id.tv_wallet_total_btc_header);
+			TextView tvBtcSub = (TextView) getActivity().findViewById(R.id.tv_wallet_total_btc_sub);
+			TextView tvFiatSub = (TextView) getActivity().findViewById(R.id.tv_wallet_total_fiat_sub);
+
+			String localCurrency = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
+			tvFiatHeader.setText(String.format(getResources().getString(R.string.wallet_total_fiat), localCurrency));
+
+			tvBtcHeader.setText(getResources().getString(R.string.wallet_total_btc));
+
+			tvBtcSub.setText(String.format(getResources().getString(R.string.wallet_total_btc_sub_format), totalBtc + ""));
+			tvFiatSub.setText(String.format(getResources().getString(R.string.wallet_total_fiat_sub_format), totalFiat + "", localCurrency));
+
+			mTotalBtcTable.addView(trBtc);
+			mTotalBtcTable.addView(v);
+
+			mTotalFiatTable.addView(trFiat);
+			mTotalFiatTable.addView(vv);
+		}
 
 	}
 
 
-	public static class GetConversionAmounts extends AsyncTask<String, Void, String[]> {
+	public class GetConversionAmounts extends AsyncTask<String, Void, Float[]> {
 		String btc = "https://block.io/api/v1/get_current_price/?api_key=" + BLOCK_IO_KEY +
 				"&price_base=" + "BTC";
 		String fiat = "https://block.io/api/v1/get_current_price/?api_key=" + BLOCK_IO_KEY +
 				"&price_base=" + PreferenceManager.getDefaultSharedPreferences(mActivity)
 				.getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
 
-		protected String[] doInBackground(String... params) {
+		CurrencyListener mCurrencyListener;
+
+		public GetConversionAmounts(CurrencyListener listener){
+			mCurrencyListener = listener;
+		}
+
+		protected Float[] doInBackground(String... params) {
 			for(String s : params){
-				HttpURLConnection connection = null;
+				String btcRaw = getStringFromUrl(btc);
+				String fiatRaw = getStringFromUrl(fiat);
+
+				try {
+					//step through json string
+					JSONObject btcObject = new JSONObject(btcRaw);
+					JSONObject fiatObject = new JSONObject(fiatRaw);
+
+					JSONObject btcData = btcObject.getJSONObject("data");
+					JSONObject fiatData = fiatObject.getJSONObject("data");
+
+					JSONArray btcArray = btcData.getJSONArray("prices");
+					JSONArray fiatArray = fiatData.getJSONArray("prices");
+
+					float avgBtc = -1;
+
+					if(btcArray.length() > 0) {
+						//get average value for btc
+						float addedBtcValues = 0;
+						for (int i = 0; i < btcArray.length(); i++) {
+							JSONObject o = btcArray.getJSONObject(i);
+							addedBtcValues += o.getDouble("price");
+							Log.i(TAG, "NetgetBTC: " + o.getDouble("price"));
+						}
+						avgBtc = addedBtcValues / btcArray.length();
+					}
+
+					float avgFiat = -1;
+
+					if(fiatArray.length() > 0) {
+						float addedFiatValues = 0;
+						for (int i = 0; i < fiatArray.length(); i++) {
+							JSONObject o = fiatArray.getJSONObject(i);
+							addedFiatValues += o.getDouble("price");
+							Log.i(TAG, "NetgetFiat: " + o.getDouble("price"));
+						}
+						avgFiat = addedFiatValues / fiatArray.length();
+					}
+
+					float dogeBalance = Float.parseFloat(s);
+					Log.i(TAG, "Dogebalance is " + dogeBalance);
+					return new Float[]{dogeBalance * avgBtc, dogeBalance * avgFiat};
+
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
 
 			}
+
+			return null;
 		}
 
 		@Override
-		protected void onPostExecute(String[] s) {
-			super.onPostExecute(s);
+		protected void onPostExecute(Float[] floats) {
+			mCurrencyListener.onGetBFBalance(floats);
 		}
 	}
 

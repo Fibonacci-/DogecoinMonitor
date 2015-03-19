@@ -76,6 +76,7 @@ public class MainActivity extends Activity
 		AdRequest adRequest = new AdRequest.Builder()
 				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
 				.addTestDevice("827EB1A5D0932A3128F6670540C5EFEC")
+				.addTestDevice("870856BEB78EBA07DB2D4697C70F2369")
 				.build();
 		mAdView.loadAd(adRequest);
 
@@ -219,7 +220,7 @@ public class MainActivity extends Activity
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
+            //getMenuInflater().inflate(R.menu.main, menu);
             restoreActionBar();
             return true;
         }

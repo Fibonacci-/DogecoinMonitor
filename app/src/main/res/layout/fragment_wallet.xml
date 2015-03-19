@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            </TableLayout>
+        </TableLayout>
 
     </android.support.v7.widget.CardView>
 
@@ -52,6 +52,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
+        <TextView
+            android:id="@+id/tv_wallet_total_fiat_sub"
+            android:paddingTop="25dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TableLayout
+            android:paddingTop="50dp"
+            android:stretchColumns="1"
+            android:divider="@drawable/amber_300_transparent"
+            android:id="@+id/tl_wallet_total_fiat_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </TableLayout>
+
     </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -67,10 +83,27 @@
 
         <TextView
             android:id="@+id/tv_wallet_total_btc_header"
+
             android:text="@string/loading_wallet"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/tv_wallet_total_btc_sub"
+            android:paddingTop="25dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TableLayout
+            android:paddingTop="50dp"
+            android:stretchColumns="1"
+            android:divider="@drawable/amber_300_transparent"
+            android:id="@+id/tl_wallet_total_btc_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </TableLayout>
 
     </android.support.v7.widget.CardView>
 

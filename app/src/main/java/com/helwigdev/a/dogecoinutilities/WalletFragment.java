@@ -154,6 +154,8 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 		HttpURLConnection connection = null;
 		String toReturn = null;
 		try{
+			Thread.sleep(100);
+			//TODO check response
 			connection = (HttpURLConnection) new URL(url).openConnection();
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -253,6 +255,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 		protected Float[] doInBackground(String... params) {
 			for(String s : params){
+
 				String btcRaw = getStringFromUrl(btc);
 				String fiatRaw = getStringFromUrl(fiat);
 

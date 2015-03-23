@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -61,6 +62,7 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
 
 		//TODO add welcome dialog
+		PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
 
 		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_main);
@@ -143,12 +145,13 @@ public class MainActivity extends Activity
 				break;
 			case 3:
 
-				//insert settings fragment
-				positionBeforeScan = position;
-				fragmentManager.beginTransaction()
-						.replace(R.id.container, mFragmentSingleton.getSettingsFragment())
-						.commit();
-				onSectionAttached(position + 1);
+				onNavigationDrawerItemSelected(positionBeforeScan);
+				onSectionAttached(positionBeforeScan + 1);
+				mNavigationDrawerFragment.setItemPosition(positionBeforeScan);
+
+
+				Intent i = new Intent(this, SettingsActivity.class);
+				startActivity(i);
 				break;
 
         }

@@ -8,8 +8,8 @@ android {
         applicationId "com.helwigdev.a.dogecoinutilities"
         minSdkVersion 11
         targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+        versionCode 10
+        versionName "FP Release 2.0"
     }
     buildTypes {
         release {

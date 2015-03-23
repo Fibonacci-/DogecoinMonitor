@@ -48,5 +48,6 @@
 
     <string name="loading_wallet">Loading wallet data…</string>
     <string name="totalDogePreformat">Total Dogecoin</string>
+    <string name="title_activity_help">Help</string>
 
 </resources>

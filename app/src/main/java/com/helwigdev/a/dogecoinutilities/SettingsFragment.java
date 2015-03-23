@@ -1,12 +1,14 @@
 package com.helwigdev.a.dogecoinutilities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 
 /**
  * Created by Tyler on 1/10/2015.
  */
-public class SettingsFragment extends PreferenceFragment {
+public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 	private static final String ARG_SECTION_NUMBER = "section_number";
 
 	@Override
@@ -24,5 +26,31 @@ public class SettingsFragment extends PreferenceFragment {
 		args.putInt(ARG_SECTION_NUMBER, sectionNumber);
 		fragment.setArguments(args);
 		return fragment;
+	}
+
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		switch (key){
+			case "currencyDelim":
+				PreferenceManager.getDefaultSharedPreferences(getActivity()).edit()
+						.putString(CurrencyFragment.PREF_LOCAL_CURRENCY, sharedPreferences.getString(key, "USD")).apply();
+				break;
+
+		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		getPreferenceScreen().getSharedPreferences()
+				.registerOnSharedPreferenceChangeListener(this);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		getPreferenceScreen().getSharedPreferences()
+				.unregisterOnSharedPreferenceChangeListener(this);
 	}
 }

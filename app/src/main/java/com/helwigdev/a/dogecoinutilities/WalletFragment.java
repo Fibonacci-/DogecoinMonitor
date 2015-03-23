@@ -299,7 +299,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 					Log.i(TAG, "Dogebalance is " + dogeBalance);
 					return new Float[]{dogeBalance * avgBtc, dogeBalance * avgFiat};
 
-				} catch (JSONException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 

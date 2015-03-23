@@ -7,6 +7,12 @@
     -->
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
     <PreferenceCategory android:title="General">
+        <Preference android:title="@string/title_activity_help" >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="com.helwigdev.a.dogecoinutilities.Help"
+                android:targetPackage="com.helwigdev.a.dogecoinutilities" />
+        </Preference>
         <ListPreference
             android:defaultValue="USD"
             android:entries="@array/supported_currencies"
@@ -20,20 +26,8 @@
             android:key="refreshRate"
             android:title="@string/sRates" />
 
-        <!--<Preference android:title="@string/title_activity_help" >
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:targetClass="com.helwigdev.a.dogecoinutilities.Help"
-                android:targetPackage="com.helwigdev.a.dogecoinutilities" />
-        </Preference>-->
 
-        <CheckBoxPreference
-            android:key="satoshi"
-            android:defaultValue="true"
-            android:title="@string/satoshi"
-            android:summary="@string/satoshi_desc" />
 
-        <!-- Configure widgets? -->
     </PreferenceCategory>
     <PreferenceCategory android:title="Backup / Restore">
         <Preference
@@ -47,10 +41,10 @@
         <Preference
             android:key="donateBilling"
             android:title="@string/removeads">
-            <intent
+            <!--<intent
                 android:action="android.intent.action.VIEW"
                 android:targetClass="com.helwigdev.a.dogecoinutilities.RemoveAds"
-                android:targetPackage="com.helwigdev.a.dogecoinutilities" />
+                android:targetPackage="com.helwigdev.a.dogecoinutilities" />-->
         </Preference>
         <Preference
             android:key="donateDoge"

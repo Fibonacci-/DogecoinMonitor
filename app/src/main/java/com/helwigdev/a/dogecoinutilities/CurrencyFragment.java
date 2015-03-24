@@ -2,6 +2,7 @@ package com.helwigdev.a.dogecoinutilities;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -28,6 +29,7 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 /**
  * Created by Tyler on 2/19/2015.
@@ -46,6 +48,8 @@ public class CurrencyFragment extends Fragment {
 
 	private boolean isLaunching;
 
+	ProgressDialog progress;
+
 	private Menu mMenu;
 
 	@Override
@@ -54,6 +58,7 @@ public class CurrencyFragment extends Fragment {
 		setHasOptionsMenu(true);
 		isLaunching = savedInstanceState != null;
 		isLaunching = !isLaunching;
+
 	}
 
 	@Nullable
@@ -61,6 +66,8 @@ public class CurrencyFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_currency, container, false);
+
+
 
 		pbSat = (ProgressBar) v.findViewById(R.id.prog_sat);
 		tvSatSub1 = (TextView) v.findViewById(R.id.tv_frag_sub_satoshi_1);

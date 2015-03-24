@@ -13,7 +13,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="satoshi">Satoshi</string>
     <string name="sCurrencies">Local currency</string>
-    <string name="sRates">Refresh rate</string>
+    <string name="sRates">Polling rate</string>
     <string name="sBackup_to_sd">Backup to SD card</string>
     <string name="sRestore">Restore from backup</string>
     <string name="donate">Donate</string>
@@ -49,5 +49,13 @@
     <string name="loading_wallet">Loading wallet data…</string>
     <string name="totalDogePreformat">Total Dogecoin</string>
     <string name="title_activity_help">Help</string>
+    <string name="alert_dialog_ok">OK</string>
+    <string name="hello">Hello!</string>
+    <string name="welcome_text">Hey, welcome to Dogecoin Monitor.\n\nIf you\'ve used this app in the past, you\'ll note some differences,
+        first among them being a pretty serious facelift. Another thing to note is that MPOS pool support has been dropped,
+        since there are no longer any MPOS pools running. If you find this to be in error, email me at helwigdev@gmail.com.
+        If I get even one email, I\'ll re-add the functionality. As you\'re reading this, some background changes are happening to make the app
+        faster and more responsive. \n\nAs always, feel free to email me at helwigdev@gmail.com, and thanks for using my app!</string>
+    <string name="pref_polling">Poll for new data in the background</string>
 
 </resources>

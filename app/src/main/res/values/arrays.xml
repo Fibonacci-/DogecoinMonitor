@@ -17,7 +17,8 @@
         <item name="SGD">Singapore Dollar</item>
         <item name="THB">Thai Baht</item>
         <item name="USD">United States Dollar</item>
-        <item name="ZAR">South African Rand</item></string-array>
+        <item name="ZAR">South African Rand</item>
+</string-array>
     <string-array name="supported_currency_values">        
         <item name="AUD">AUD</item>
         <item name="CAD">CAD</item>
@@ -34,29 +35,23 @@
         <item name="SGD">SGD</item>
         <item name="THB">THB</item>
         <item name="USD">USD</item>
-        <item name="ZAR">ZAR</item></string-array>
+        <item name="ZAR">ZAR</item>
+</string-array>
 	<string-array name="main_refresh_rates_text">
-	    <item name="30">0.5 minutes</item>
-	    <item name="60">1 minute</item>
-	    <item name="90">1.5 minutes</item>
-	    <item name="120">2 minutes</item>
-	    <item name="150">2.5 minutes</item>
-	    <item name="180">3 minutes</item>
-	    <item name="210">3.5 minutes</item>
-	    <item name="240">4 minutes</item>
-	    <item name="270">4.5 minutes</item>
-	    <item name="300">5 minutes</item>
+	    <item name="30">0.5 hours</item>
+	    <item name="60">1 hour</item>
+	    <item name="120">2 hours</item>
+	    <item name="360">6 hours</item>
+        <item name="720">12 hours</item>
+        <item name="1440">24 hours</item>
 	</string-array>
 	<string-array name="main_refresh_rates_values">
 	    <item name="30">30</item>
-	    <item name="90">90</item>
+        <item name="60">60</item>
 	    <item name="120">120</item>
-	    <item name="150">150</item>
-	    <item name="180">180</item>
-	    <item name="210">210</item>
-	    <item name="240">240</item>
-	    <item name="270">270</item>
-	    <item name="300">300</item>
+	    <item name="360">360</item>
+        <item name="720">720</item>
+        <item name="1440">1440</item>
 	    
 	</string-array>
 	

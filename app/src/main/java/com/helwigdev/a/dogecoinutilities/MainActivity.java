@@ -2,6 +2,7 @@ package com.helwigdev.a.dogecoinutilities;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
@@ -32,6 +33,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 public class MainActivity extends Activity
@@ -63,6 +65,26 @@ public class MainActivity extends Activity
 
 		//TODO add welcome dialog
 		PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+
+		//upgrade to new DB if this version of the app has never been started before
+		if(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstStart", true)){
+
+			try {
+				ArrayList<String> values = Utilities.getWalletAddressList(this);
+				FragmentSingleton singleton = FragmentSingleton.get(this);
+				for(String s : values){
+					singleton.addWallet(s);
+				}
+
+			}catch (Exception ignored){ignored.printStackTrace();}
+			//PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("firstStart",false).commit();
+
+			DialogFragment newFragment = FirstAlertDialog.newInstance(
+					R.string.hello);
+			newFragment.show(getFragmentManager(), "dialog");
+
+
+		}
 
 		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_main);

@@ -22,8 +22,8 @@ public class FragmentSingleton {
 	private CurrencyFragment mCurrencyFragment;
 	private WalletFragment mWalletFragment;
 	private SettingsFragment mSettingsFragment;
+	private DatabaseHelper mHelper;
 
-	private ArrayList<String> mAddressList;
 	private ArrayList<String> mPoolList;
 
 	private Context mContext;
@@ -32,16 +32,24 @@ public class FragmentSingleton {
 
 	protected FragmentSingleton(Context c) {
 		mContext = c;
+		mHelper = new DatabaseHelper(mContext);
 		reloadData();
 	}
 
 	public void reloadData() {
-		mAddressList = new ArrayList<>();
+		ArrayList<String> addressList = new ArrayList<>();
 		mPoolList = new ArrayList<>();
 
 		try {
-			mAddressList = Utilities.getWalletAddressList(mContext);
 			mPoolList = Utilities.getPoolApiList(mContext);
+
+//			if(addressList.size() != 0){
+//				for(String s : addressList){
+//					mHelper.insertWallet(s);
+//					Log.i(TAG, "Converting wallet storage to new format... ");
+//				}
+//				Utilities.writeAllWalletList(mContext, new ArrayList<String>());//erase old db files
+//			}
 		} catch (Exception e) {
 			Log.e(TAG, "Could not load data from storage: " + e.toString());
 		}
@@ -54,22 +62,26 @@ public class FragmentSingleton {
 		return instance;
 	}
 
+	public DatabaseHelper getHelper(){
+		if(mHelper == null){
+			mHelper = new DatabaseHelper(mContext);
+		}
+		return mHelper;
+	}
+
 	public ArrayList<String> getPoolList() {
 		return mPoolList;
 	}
 
 
 	public ArrayList<String> getAddressList() {
-		return mAddressList;
+		return mHelper.queryAddresses();
 	}
 
-	public boolean addWallet(String address) {
-		if(!mAddressList.contains(address)) {
-			mAddressList.add(address);//only add addresses that we don't have yet
-			return true;
-		} else {
-			return false;
-		}
+	public void addWallet(String address) {
+
+		mHelper.insertWallet(address);
+
 	}
 
 	public void addPool(String apiString) {
@@ -109,6 +121,5 @@ public class FragmentSingleton {
 	public void saveData(){
 		Log.i(TAG, "Saving data to disk");
 		Utilities.writeAllPoolApiList(mContext, mPoolList);
-		Utilities.writeAllWalletList(mContext, mAddressList);
 	}
 }

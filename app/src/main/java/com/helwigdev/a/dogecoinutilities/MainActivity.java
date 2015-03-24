@@ -365,16 +365,8 @@ public class MainActivity extends Activity
 					return;
 				}
 
-				if(!mFragmentSingleton.addWallet(address)){
-					//it's already been added
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							Toast.makeText(getApplicationContext(), "Address has already been added!", Toast.LENGTH_SHORT).show();
-						}
-					});
-				}
-				Log.i(TAG, "Address is OK: " + address);
+				mFragmentSingleton.addWallet(address);
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

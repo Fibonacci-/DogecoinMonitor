@@ -255,7 +255,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 		protected Float[] doInBackground(String... params) {
 			for(String s : params){
-
+				//TODO optimize this shit
 				String btcRaw = getStringFromUrl(btc);
 				String fiatRaw = getStringFromUrl(fiat);
 

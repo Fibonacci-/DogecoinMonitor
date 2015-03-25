@@ -3,10 +3,8 @@ package com.helwigdev.a.dogecoinutilities;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -61,7 +59,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		//create table conversion rates
 		db.execSQL("create table conversion_rate (" +
-				"_id integer primary key autoincrement, timestamp integer, base varchar(10), rate real)");
+				"_id integer primary key autoincrement, timestamp integer, base varchar(10), " +
+				"rate real)");
 	}
 
 	@Override
@@ -69,10 +68,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		//implement changes here if we ever change the DB
 	}
 
-	public long insertAmount(String address, float amount){
+	public long insertRate(String base, float rate) {
+		ContentValues cv = new ContentValues();
+		cv.put(COLUMN_CONVERSION_RATE_BASE_CURRENCY, base);
+		cv.put(COLUMN_CONVERSION_RATE_RATE, rate);
+		cv.put(COLUMN_CONVERSION_RATE_TIMESTAMP, new Date().getTime());
+		return getWritableDatabase().insert(TABLE_CONVERSION_RATE, null, cv);
+	}
+
+	public long insertAmount(String address, float amount) {
 		//need to get wallet ID first
 		long walletId = findWalletId(address);
-		if(walletId != -1){
+		if (walletId != -1) {
 			ContentValues cv = new ContentValues();
 			cv.put(COLUMN_AMOUNT_AMOUNT, amount);
 			cv.put(COLUMN_AMOUNT_WALLET_ID, walletId);
@@ -83,43 +90,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return -1;
 	}
 
-	private long findWalletId(String address){
+	private long findWalletId(String address) {
 		Cursor cursor = getReadableDatabase().query(TABLE_WALLET,
 				null,
 				null,
 				null,
-				null,null,null);
+				null, null, null);
 		cursor.moveToFirst();
-		if(cursor.isBeforeFirst() || cursor.isAfterLast()) return -1;//if cursor is not empty
+		if (cursor.isBeforeFirst() || cursor.isAfterLast()) {
+			return -1;//if cursor is not empty
+		}
 
-			while(!cursor.isAfterLast()){//step through cursor to check if we have this address saved
-				String savedAddress = cursor.getString(cursor.getColumnIndex(COLUMN_WALLET_ADDRESS));
-				if(address.equals(savedAddress)){
-					return cursor.getLong(cursor.getColumnIndex(COLUMN_WALLET_ID));//if we already saved this address, return the row ID
-				}
-				cursor.moveToNext();
+		while (!cursor.isAfterLast()) {//step through cursor to check if we have this address saved
+			String savedAddress = cursor.getString(cursor.getColumnIndex(COLUMN_WALLET_ADDRESS));
+			if (address.equals(savedAddress)) {
+				cursor.close();
+				return cursor.getLong(cursor.getColumnIndex(COLUMN_WALLET_ID));//if we already
+				// saved this address, return the row ID
 			}
+			cursor.moveToNext();
+		}
+		cursor.close();
 		return -1;
 	}
 
-	public long insertWallet(String address){
+	public long insertWallet(String address) {
 		Cursor cursor = getReadableDatabase().query(TABLE_WALLET,
 				null,
 				null,
 				null,
-				null,null,null);
+				null, null, null);
 		cursor.moveToFirst();
-		if(!(cursor.isBeforeFirst() || cursor.isAfterLast())){//if cursor is not empty
+		if (!(cursor.isBeforeFirst() || cursor.isAfterLast())) {//if cursor is not empty
 
-			while(!cursor.isAfterLast()){//step through cursor to check if we have this address saved
-				String savedAddress = cursor.getString(cursor.getColumnIndex(COLUMN_WALLET_ADDRESS));
-				if(address.equals(savedAddress)){
+			while (!cursor.isAfterLast()) {//step through cursor to check if we have this address
+			// saved
+				String savedAddress = cursor.getString(cursor.getColumnIndex
+						(COLUMN_WALLET_ADDRESS));
+				if (address.equals(savedAddress)) {
 					Log.e(TAG, "Address already added: " + address);
-					return cursor.getLong(cursor.getColumnIndex(COLUMN_WALLET_ID));//if we already saved this address, return the row ID
+					cursor.close();
+					return cursor.getLong(cursor.getColumnIndex(COLUMN_WALLET_ID));//if we already
+					// saved this address, return the row ID
 				}
 				cursor.moveToNext();
 			}
 		}
+		cursor.close();
 
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_WALLET_ADDRESS, address);
@@ -127,24 +144,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return getWritableDatabase().insert(TABLE_WALLET, null, cv);
 	}
 
-	public ArrayList<String> queryAddresses(){
+	public ArrayList<String> queryAddresses() {
 		Log.e(TAG, "Querying addresses");
 		Cursor cursor = getReadableDatabase().query(TABLE_WALLET,
 				null,
 				null,
 				null,
-				null,null,null);
+				null, null, null);
 		cursor.moveToFirst();
-		if(cursor.isBeforeFirst() || cursor.isAfterLast()){
+		if (cursor.isBeforeFirst() || cursor.isAfterLast()) {
 			Log.i(TAG, "Empty cursor!");
 			return new ArrayList<>();//return empty arraylist
 		}
 
 
 		ArrayList<String> list = new ArrayList<>();
-		while(!cursor.isAfterLast()){
+		while (!cursor.isAfterLast()) {
 			list.add(cursor.getString(cursor.getColumnIndex(COLUMN_WALLET_ADDRESS)));
-			Log.i(TAG, "Found DB address: " + cursor.getString(cursor.getColumnIndex(COLUMN_WALLET_ADDRESS)));
+			Log.i(TAG, "Found DB address: " + cursor.getString(cursor.getColumnIndex
+					(COLUMN_WALLET_ADDRESS)));
 			cursor.moveToNext();
 		}
 		cursor.close();

@@ -77,7 +77,7 @@ public class MainActivity extends Activity
 				}
 
 			}catch (Exception ignored){ignored.printStackTrace();}
-			//PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("firstStart",false).commit();
+			PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("firstStart",false).commit();
 
 			DialogFragment newFragment = FirstAlertDialog.newInstance(
 					R.string.hello);

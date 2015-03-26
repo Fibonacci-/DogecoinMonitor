@@ -90,6 +90,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return -1;
 	}
 
+	/*
+	Returns the most recent rate and timestamp of the given base currency
+	 */
+	public long[] getMostRecentRate(String base){
+		Log.i(TAG, "Got rate request");
+		Cursor cursor = getReadableDatabase().query(TABLE_CONVERSION_RATE,
+				null, // All columns
+				COLUMN_CONVERSION_RATE_BASE_CURRENCY + " = ?", // Look for a run ID
+				new String[]{ String.valueOf(base) }, // with this value
+				null, // group by
+				null,//COLUMN_CONVERSION_RATE_TIMESTAMP + " asc", // order by
+				null, // having
+				"1"); // limit 1 row
+		Log.i(TAG, "Made cursor");
+		cursor.moveToFirst();
+		Log.i(TAG, "Moved cursor");
+		if (cursor.isBeforeFirst() || cursor.isAfterLast()) {
+			Log.i(TAG, "No values found");
+			return new long[]{-1, -1};//if cursor is not empty
+		}
+		long rate = cursor.getLong(cursor.getColumnIndex(COLUMN_CONVERSION_RATE_RATE));
+		double timestamp = cursor.getInt(cursor.getColumnIndex(COLUMN_CONVERSION_RATE_TIMESTAMP));
+		Log.i(TAG, "Got rates: " + rate + " " + timestamp);
+		cursor.close();
+		return new long[]{rate, Long.parseLong(timestamp + "")};
+	}
+
 	private long findWalletId(String address) {
 		Cursor cursor = getReadableDatabase().query(TABLE_WALLET,
 				null,

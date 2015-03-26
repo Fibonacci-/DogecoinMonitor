@@ -18,7 +18,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -26,6 +25,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by Tyler on 2/19/2015.
@@ -150,12 +150,12 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 	}
 
-	public String getStringFromUrl(String url){
+	public String getStringFromUrl(String url) {
 		HttpURLConnection connection = null;
 		String toReturn = null;
-		try{
-			Thread.sleep(100);
+		try {
 			//TODO check response
+			Thread.sleep(100);
 			connection = (HttpURLConnection) new URL(url).openConnection();
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -172,7 +172,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 			}
 			out.close();
 			toReturn = out.toString();
-		} catch (Exception e){
+		} catch (Exception e) {
 			return null;
 		}
 		return toReturn;
@@ -181,7 +181,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 	@Override
 	public void onGetBFBalance(Float[] balances) {
 		/* Create a new row to be added. */
-		if(balances != null) {
+		if (balances != null) {
 			TableRow trBtc = new TableRow(getActivity());
 			trBtc.setLayoutParams(new TableRow.LayoutParams(
 					TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
@@ -213,22 +213,30 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 			vv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 1));
 			vv.setBackgroundColor(getResources().getColor(R.color.amber_700_color));
 
-			TextView tvFiatHeader = (TextView) getActivity().findViewById(R.id.tv_wallet_total_fiat_header);
+			TextView tvFiatHeader = (TextView) getActivity().findViewById(R.id
+					.tv_wallet_total_fiat_header);
 
-			TextView tvBtcHeader = (TextView) getActivity().findViewById(R.id.tv_wallet_total_btc_header);
-			TextView tvBtcSub = (TextView) getActivity().findViewById(R.id.tv_wallet_total_btc_sub);
-			TextView tvFiatSub = (TextView) getActivity().findViewById(R.id.tv_wallet_total_fiat_sub);
+			TextView tvBtcHeader = (TextView) getActivity().findViewById(R.id
+					.tv_wallet_total_btc_header);
+			TextView tvBtcSub = (TextView) getActivity().findViewById(R.id
+					.tv_wallet_total_btc_sub);
+			TextView tvFiatSub = (TextView) getActivity().findViewById(R.id
+					.tv_wallet_total_fiat_sub);
 
-			String localCurrency = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
-			tvFiatHeader.setText(String.format(getResources().getString(R.string.wallet_total_fiat), localCurrency));
+			String localCurrency = PreferenceManager.getDefaultSharedPreferences(getActivity())
+					.getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
+			tvFiatHeader.setText(String.format(getResources().getString(R.string
+					.wallet_total_fiat), localCurrency));
 
 			tvBtcHeader.setText(getResources().getString(R.string.wallet_total_btc));
 
 			String btcNumFormat = String.format("%.8f", totalBtc);
 			String fiatNumFormat = String.format("%.2f", totalFiat);
 
-			tvBtcSub.setText(String.format(getResources().getString(R.string.wallet_total_btc_sub_format), btcNumFormat));
-			tvFiatSub.setText(String.format(getResources().getString(R.string.wallet_total_fiat_sub_format), fiatNumFormat, localCurrency));
+			tvBtcSub.setText(String.format(getResources().getString(R.string
+					.wallet_total_btc_sub_format), btcNumFormat));
+			tvFiatSub.setText(String.format(getResources().getString(R.string
+					.wallet_total_fiat_sub_format), fiatNumFormat, localCurrency));
 
 			mTotalBtcTable.addView(trBtc);
 			mTotalBtcTable.addView(v);
@@ -243,19 +251,35 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 	public class GetConversionAmounts extends AsyncTask<String, Void, Float[]> {
 		String btc = "https://block.io/api/v1/get_current_price/?api_key=" + BLOCK_IO_KEY +
 				"&price_base=" + "BTC";
-		String fiat = "https://block.io/api/v1/get_current_price/?api_key=" + BLOCK_IO_KEY +
-				"&price_base=" + PreferenceManager.getDefaultSharedPreferences(mActivity)
+		String fiatBase = PreferenceManager.getDefaultSharedPreferences(mActivity)
 				.getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
+		String fiat = "https://block.io/api/v1/get_current_price/?api_key=" + BLOCK_IO_KEY +
+				"&price_base=" + fiatBase;
 
 		WalletSecondaryListener mWalletSecondaryListener;
 
-		public GetConversionAmounts(WalletSecondaryListener listener){
+		public GetConversionAmounts(WalletSecondaryListener listener) {
 			mWalletSecondaryListener = listener;
 		}
 
 		protected Float[] doInBackground(String... params) {
-			for(String s : params){
+			for (String s : params) {
 				//TODO optimize this shit
+				//rate, timestamp
+				long[] btcRecents = mFragmentSingleton.getHelper().getMostRecentRate("BTC");
+				long[] fiatRecents = mFragmentSingleton.getHelper().getMostRecentRate(fiatBase);
+				double time = new Date().getTime();
+
+				double fiveMinutesInMillis = 300000;
+
+				if (btcRecents[0] != -1 && fiatRecents[0] != -1) {//if we have both values
+					if((time - fiveMinutesInMillis) < btcRecents[1] && (time - fiveMinutesInMillis) < fiatRecents[1]){//if our values are less than 5 minutes old
+						float dogeBalance = Float.parseFloat(s);
+						Log.i("BTCValuesGet","Taking a shortcut - found old values for currencies");
+						return new Float[]{dogeBalance * btcRecents[0], dogeBalance * btcRecents[0]};
+					}
+				}
+
 				String btcRaw = getStringFromUrl(btc);
 				String fiatRaw = getStringFromUrl(fiat);
 
@@ -272,7 +296,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 					float avgBtc = -1;
 
-					if(btcArray.length() > 0) {
+					if (btcArray.length() > 0) {
 						//get average value for btc
 						float addedBtcValues = 0;
 						for (int i = 0; i < btcArray.length(); i++) {
@@ -285,7 +309,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 					float avgFiat = -1;
 
-					if(fiatArray.length() > 0) {
+					if (fiatArray.length() > 0) {
 						float addedFiatValues = 0;
 						for (int i = 0; i < fiatArray.length(); i++) {
 							JSONObject o = fiatArray.getJSONObject(i);
@@ -297,6 +321,8 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 					float dogeBalance = Float.parseFloat(s);
 					Log.i(TAG, "Dogebalance is " + dogeBalance);
+					mFragmentSingleton.getHelper().insertRate("BTC",avgBtc);
+					mFragmentSingleton.getHelper().insertRate(fiatBase, avgFiat);
 					return new Float[]{dogeBalance * avgBtc, dogeBalance * avgFiat};
 
 				} catch (Exception e) {

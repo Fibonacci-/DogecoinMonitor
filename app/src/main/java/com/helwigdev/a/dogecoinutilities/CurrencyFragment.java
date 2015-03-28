@@ -34,10 +34,13 @@ import java.util.ArrayList;
 /**
  * Created by Tyler on 2/19/2015.
  * All code herein copyright Helwig Development 2/19/2015
+ * This fragment retrieves and shows current satoshi and fiat values for Dogecoin.
  */
 public class CurrencyFragment extends Fragment {
+	//declarations
 	private static final String ARG_SECTION_NUMBER = "section_number";
 	public static final String PREF_LOCAL_CURRENCY = "local_currency";
+	private static final String TAG = "CurrencyFragment";
 	private ProgressBar pbSat;
 	private ProgressBar pbFiat;
 	private TextView tvSatSub1;
@@ -55,7 +58,9 @@ public class CurrencyFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//make sure menu inflates properly
 		setHasOptionsMenu(true);
+		//if first launch of fragment
 		isLaunching = savedInstanceState != null;
 		isLaunching = !isLaunching;
 
@@ -67,8 +72,7 @@ public class CurrencyFragment extends Fragment {
 							 Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_currency, container, false);
 
-
-
+		//link to xml
 		pbSat = (ProgressBar) v.findViewById(R.id.prog_sat);
 		tvSatSub1 = (TextView) v.findViewById(R.id.tv_frag_sub_satoshi_1);
 		tvSatSub2 = (TextView) v.findViewById(R.id.tv_frag_sub_satoshi_2);
@@ -76,8 +80,17 @@ public class CurrencyFragment extends Fragment {
 		pbFiat = (ProgressBar) v.findViewById(R.id.prog_fiat);
 		tvFiatTitle = (TextView) v.findViewById(R.id.tv_frag_header_fiat);
 		tvFiatSub1 = (TextView) v.findViewById(R.id.tv_frag_sub_fiat_1);
+
 		tvFiatSub2 = (TextView) v.findViewById(R.id.tv_frag_sub_fiat_2);
-		if(isLaunching) {//first launch
+		//we don't want to refresh data each time the view is drawn
+		//so we check for first launch in onCreate
+		//then refresh page data if we don't have it yet
+		//note this would also be possible by setting and clearing preference values
+		//but that method would become buggy if the app force closed
+		//and didn't properly clear preference values
+		if (isLaunching) {//first launch
+			//note that we can't use refreshData() here
+			//there is no guarantee that the menu has been inflated yet
 			new GetCurrencyAsync().execute(tvSatSub2);
 			new GetCurrencyAsync().execute(tvFiatSub2);
 			isLaunching = false;
@@ -87,6 +100,7 @@ public class CurrencyFragment extends Fragment {
 	}
 
 	public static CurrencyFragment newInstance(int sectionNumber) {
+		//nav drawer selection
 		CurrencyFragment fragment = new CurrencyFragment();
 		Bundle args = new Bundle();
 		args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -96,31 +110,37 @@ public class CurrencyFragment extends Fragment {
 
 	@Override
 	public void onAttach(Activity activity) {
+
 		super.onAttach(activity);
 		((MainActivity) activity).onSectionAttached(
 				getArguments().getInt(ARG_SECTION_NUMBER));
 	}
 
 	private void refreshData() {
+		//set refresh icon to indeterminate progressbar
 		MenuItem itemRefresh = mMenu.findItem(R.id.menu_currency_refresh);
 		LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context
 				.LAYOUT_INFLATER_SERVICE);
 		View abprogress = inflater.inflate(R.layout.progress_wheel, null);
 		itemRefresh.setActionView(abprogress);
 
+		//swap out information views for progressbars
 		pbSat.setVisibility(View.VISIBLE);
 		pbFiat.setVisibility(View.VISIBLE);
 		tvSatSub1.setVisibility(View.GONE);
 		tvSatSub2.setVisibility(View.GONE);
 		tvFiatSub1.setVisibility(View.GONE);
 		tvFiatSub2.setVisibility(View.GONE);
+
+		//start network threads
 		new GetCurrencyAsync().execute(tvSatSub2);
 		new GetCurrencyAsync().execute(tvFiatSub2);
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		if(!((MainActivity)getActivity()).getNavigationDrawerFragment().isDrawerOpen()) {
+		//standard menu inflation with nav drawer
+		if (!((MainActivity) getActivity()).getNavigationDrawerFragment().isDrawerOpen()) {
 			inflater.inflate(R.menu.currency, menu);
 			mMenu = menu;
 		}
@@ -140,15 +160,19 @@ public class CurrencyFragment extends Fragment {
 
 	public class GetCurrencyAsync extends AsyncTask<TextView, Void, String> {
 
+		//here we have the meat of the fragment
+
 		private String urlGetDogeSat = "https://block" +
 				".io/api/v1/get_current_price/?api_key=6411-6b24-8a06-218e&price_base=BTC";
-		private String urlGetDogeLocal;
+		private String urlGetDogeLocal;//set in preExecute
 		TextView tv;
 
 		@Override
 		protected void onPreExecute() {
+			//get local currency, if it has been set
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 			String local = prefs.getString(PREF_LOCAL_CURRENCY, "USD");
+			//build API url for local currency
 			urlGetDogeLocal = "https://block" +
 					".io/api/v1/get_current_price/?api_key=6411-6b24-8a06-218e&price_base=" +
 					local;
@@ -156,6 +180,7 @@ public class CurrencyFragment extends Fragment {
 
 		@Override
 		protected String doInBackground(TextView... params) {
+			//TODO check to make sure params[0] is set before using (low priority)
 			tv = params[0];
 			String urlToGet;
 			if (tv == tvSatSub2) {
@@ -165,24 +190,26 @@ public class CurrencyFragment extends Fragment {
 			}
 
 			try {
-				String s = new String(getUrlBytes(urlToGet));
-				//Log.i("HTTP", s);
+				String s = new String(getUrlBytes(urlToGet));//do network get
 				//we have webdata, now to convert to JSON and parse
 				JSONObject object = new JSONObject(s);
-				if (object.getString("status").equals("success")) {
+				if (object.getString("status").equals("success")) {//otherwise, no recent trades found or api error
 					JSONObject data = object.getJSONObject("data");
 					JSONArray priceArray = data.getJSONArray("prices");
 
 					if (priceArray.length() == 0) {
 						//no trades found
+						//sometimes the api returns success but without any price data
+						//it's very odd
 						return getResources().getString(R.string.no_trades_found);
 					} else {
+						//build string
 						s = "";
 						for (int i = 0; i < priceArray.length(); i++) {
 							JSONObject o = priceArray.getJSONObject(i);
 							double price;
 							if (tv == tvSatSub2) {
-								price = o.getDouble("price") * 100000000;
+								price = o.getDouble("price") * 100000000;//satoshi is measured as: 1Doge = n BTC * 10^8
 								int intPrice = (int) Math.round(price);
 								s += intPrice + " on " + o.getString("exchange");
 								s += Utilities.newLine;
@@ -197,16 +224,15 @@ public class CurrencyFragment extends Fragment {
 					}
 
 				} else {
-					//api fail
+					//nondescript api fail
 					return getResources().getString(R.string.api_fail);
 				}
 
 			} catch (ConnectException e) {
 				return getResources().getString(R.string.network_fail);
-			} catch (UnknownHostException e){
+			} catch (UnknownHostException e) {
 				return getResources().getString(R.string.no_network);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				return getResources().getString(R.string.error);
 			}
@@ -216,8 +242,12 @@ public class CurrencyFragment extends Fragment {
 
 		@Override
 		protected void onPostExecute(final String s) {
-			if(isAdded()) {
-				if (s != null) {
+			//this section of the asynctask is run on the UI thread
+			//so we can touch and modify the UI
+			if (isAdded()) {//don't touch it if the fragment isn't attached to an activity
+				if (s != null) {//null return means error, don't modify
+					//set appropriate values to appropriate textviews
+					//s will already be formatted properly
 					if (tv == tvSatSub2) {
 						pbSat.setVisibility(View.GONE);
 						tvSatSub1.setVisibility(View.VISIBLE);
@@ -236,22 +266,24 @@ public class CurrencyFragment extends Fragment {
 						tvFiatSub2.setText(s);
 					}
 				}
-				if(mMenu != null) {
+				if (mMenu != null) {
+					//reset menu item to previous icon
 					MenuItem itemRefresh = mMenu.findItem(R.id.menu_currency_refresh);
-					if(itemRefresh!=null) itemRefresh.setActionView(null);
+					if (itemRefresh != null) itemRefresh.setActionView(null);
 				}
 			}
 		}
 
+		//read data from network connection
 		byte[] getUrlBytes(String urlSpec) throws IOException {
 			URL url = new URL(urlSpec);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();//can cast - will never be not a HttpURLConnection
 
 			try {
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				InputStream in = connection.getInputStream();
-				if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-					Log.e("Fetchr", connection.getResponseMessage() + " : " + connection
+				if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {//some network issue
+					Log.e(CurrencyFragment.TAG, connection.getResponseMessage() + " : " + connection
 							.getResponseCode());
 					return null;
 				}
@@ -259,7 +291,7 @@ public class CurrencyFragment extends Fragment {
 				int bytesRead = 0;
 				byte[] buffer = new byte[1024];
 				while ((bytesRead = in.read(buffer)) > 0) {
-					out.write(buffer, 0, bytesRead);
+					out.write(buffer, 0, bytesRead);//read data stream
 				}
 				out.close();
 				return out.toByteArray();

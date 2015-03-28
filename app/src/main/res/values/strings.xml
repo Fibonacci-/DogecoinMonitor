@@ -34,7 +34,7 @@
 
     <string name="ad_id_main">ca-app-pub-5637328886369714/7331160783 </string>
     <string name="api_fail">Block.io lookup failed</string>
-    <string name="no_trades_found">No recent BTC trades found.</string>
+    <string name="no_trades_found">No recent trades found.</string>
     <string name="error">Error</string>
     <string name="network_fail">Network failure.</string>
     <string name="refresh">Refresh</string>

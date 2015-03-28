@@ -38,6 +38,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+	//TODO add caught error reporting function
 	protected static final String TAG = "MainActivity";
 
     /**

@@ -6,6 +6,8 @@ import java.net.URL;
 import java.util.concurrent.Callable;
 
 public class WebDataGet implements Callable<String> {
+	//Legacy network code used by Utilities class
+	//TODO remove or rewrite as opaque redirection to normalized network call
 
 	public WebDataGet(String url) {
 		this.url = url;

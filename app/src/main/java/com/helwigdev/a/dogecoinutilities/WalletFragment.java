@@ -32,6 +32,7 @@ import java.util.Date;
  * All code herein copyright Helwig Development 2/19/2015
  */
 public class WalletFragment extends Fragment implements WalletListener, WalletSecondaryListener {
+	//declarations
 	private static final String TAG = "WalletFragment";
 	private static final String ARG_SECTION_NUMBER = "section_number";
 	private static final String BLOCK_IO_KEY = "6411-6b24-8a06-218e";
@@ -53,6 +54,8 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		//redundant right now - may use this later, so might as well leave it in until publishing
+		// day
 		super.onCreate(savedInstanceState);
 	}
 
@@ -60,6 +63,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
+		//setup views etc
 		View v = inflater.inflate(R.layout.fragment_wallet, container, false);
 
 		mActivity = getActivity();
@@ -86,6 +90,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 		tvTotalBtcHeader.setText(getResources().getText(R.string.wallet_total_btc));
 
 		for (String s : mWalletList) {
+			//start network tasks
 			new GetWalletBalance(this).execute(s);
 		}
 
@@ -94,6 +99,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 
 	public static WalletFragment newInstance(int sectionNumber) {
+		//same as all the others - callback to update nav drawer position
 		WalletFragment fragment = new WalletFragment();
 		Bundle args = new Bundle();
 		args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -110,6 +116,8 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 	@Override
 	public void onGetAddressBalance(String address, String balance) {
+		//called when asynctask for balances completes
+		//updates UI with formatted info and starts the next task
 
 		/* Create a new row to be added. */
 		TableRow tr = new TableRow(getActivity());
@@ -129,6 +137,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 		tr.addView(tvAddress);
 		tr.addView(tvBalance);
 
+		//table row separator
 		View v = new View(getActivity());
 		v.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 1));
 		v.setBackgroundColor(getResources().getColor(R.color.amber_700_color));
@@ -155,7 +164,10 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 		String toReturn = null;
 		try {
 			//TODO check response
-			Thread.sleep(100);
+			//Thread.sleep(100);//block.io doesn't like too many requests per second - we have to
+			// artificially restrict it
+			//TODO change limit when DB lookup is working correctly
+			//TODO got some redundant network lookup code. consolidate
 			connection = (HttpURLConnection) new URL(url).openConnection();
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -179,9 +191,11 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 	}
 
 	@Override
-	public void onGetBFBalance(Float[] balances) {
+	public void onGetBFBalance(Double[] balances) {//onGetBtcFiatBalance
 		/* Create a new row to be added. */
 		if (balances != null) {
+			//similar to above UI update method - but this time, we're updating a table in two
+			// CardViews instead of one, so it'll look a bit messier
 			TableRow trBtc = new TableRow(getActivity());
 			trBtc.setLayoutParams(new TableRow.LayoutParams(
 					TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
@@ -196,13 +210,14 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 			Log.i(TAG, "Got btc amount:" + balances[0] + " and fiat amount: " + balances[1]);
 
 			TextView tvBtc = new TextView(getActivity());
-			tvBtc.setText(balances[0] + "");
+			tvBtc.setText(balances[0] + "");//implicit conversion to string
 			TextView tvFiat = new TextView(getActivity());
 			tvFiat.setText(balances[1] + "");
 
 			tvBtc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
 			tvFiat.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
 
+			//TODO is it possible to use just v instead of v and vv?
 			trBtc.addView(tvBtc);
 			View v = new View(getActivity());
 			v.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 1));
@@ -248,7 +263,8 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 	}
 
 
-	public class GetConversionAmounts extends AsyncTask<String, Void, Float[]> {
+	public class GetConversionAmounts extends AsyncTask<String, Void, Double[]> {
+		//set API locations
 		String btc = "https://block.io/api/v1/get_current_price/?api_key=" + BLOCK_IO_KEY +
 				"&price_base=" + "BTC";
 		String fiatBase = PreferenceManager.getDefaultSharedPreferences(mActivity)
@@ -262,22 +278,30 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 			mWalletSecondaryListener = listener;
 		}
 
-		protected Float[] doInBackground(String... params) {
-			for (String s : params) {
-				//TODO optimize this shit
+		protected Double[] doInBackground(String... params) {
+			for (String s : params) {//this will only pay attention to the first value in params - it's just a nice way of catching if there are no values in params
+				//TODO optimize this!
 				//rate, timestamp
-				long[] btcRecents = mFragmentSingleton.getHelper().getMostRecentRate("BTC");
-				long[] fiatRecents = mFragmentSingleton.getHelper().getMostRecentRate(fiatBase);
+				double[] btcRecents = mFragmentSingleton.getHelper().getMostRecentRate("BTC");
+				double[] fiatRecents = mFragmentSingleton.getHelper().getMostRecentRate(fiatBase);
 				double time = new Date().getTime();
 
 				double fiveMinutesInMillis = 300000;
 
 				if (btcRecents[0] != -1 && fiatRecents[0] != -1) {//if we have both values
-					if((time - fiveMinutesInMillis) < btcRecents[1] && (time - fiveMinutesInMillis) < fiatRecents[1]){//if our values are less than 5 minutes old
+					if ((time - fiveMinutesInMillis) > btcRecents[1] && (time -
+							fiveMinutesInMillis) > fiatRecents[1]) {//if our values are less than
+							// 5 minutes old
 						float dogeBalance = Float.parseFloat(s);
-						Log.i("BTCValuesGet","Taking a shortcut - found old values for currencies");
-						return new Float[]{dogeBalance * btcRecents[0], dogeBalance * btcRecents[0]};
+						Log.i("BTCValuesGet", "Taking a shortcut - found old values for " +
+								"currencies");
+						return new Double[]{dogeBalance * btcRecents[0],
+								dogeBalance * fiatRecents[0]};
+					} else {
+						Log.i(TAG, "DB data old - updating from network");
 					}
+				} else {
+					Log.i(TAG, "DB data bad - updating from network");
 				}
 
 				String btcRaw = getStringFromUrl(btc);
@@ -293,6 +317,8 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 					JSONArray btcArray = btcData.getJSONArray("prices");
 					JSONArray fiatArray = fiatData.getJSONArray("prices");
+
+					//init floats to -1 - will be interpreted as errors when entered into DB
 
 					float avgBtc = -1;
 
@@ -319,11 +345,11 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 						avgFiat = addedFiatValues / fiatArray.length();
 					}
 
-					float dogeBalance = Float.parseFloat(s);
+					double dogeBalance = Double.parseDouble(s);
 					Log.i(TAG, "Dogebalance is " + dogeBalance);
-					mFragmentSingleton.getHelper().insertRate("BTC",avgBtc);
+					mFragmentSingleton.getHelper().insertRate("BTC", avgBtc);
 					mFragmentSingleton.getHelper().insertRate(fiatBase, avgFiat);
-					return new Float[]{dogeBalance * avgBtc, dogeBalance * avgFiat};
+					return new Double[]{dogeBalance * avgBtc, dogeBalance * avgFiat};
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -335,12 +361,14 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 		}
 
 		@Override
-		protected void onPostExecute(Float[] floats) {
-			mWalletSecondaryListener.onGetBFBalance(floats);
+		protected void onPostExecute(Double[] doubles) {
+			mWalletSecondaryListener.onGetBFBalance(doubles);//interface callback when we jump back to the UI thread
 		}
 	}
 
 	public static class GetWalletBalance extends AsyncTask<String, Void, String> {
+		//get and parse network data
+		//TODO really need to reduce redundancy here, way too much copy/pasted code
 
 		private String apiUrl = "https://dogechain.info/chain/Dogecoin/q/addressbalance/";
 		private WalletListener mWalletListener;

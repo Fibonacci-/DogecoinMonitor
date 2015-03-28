@@ -1,10 +1,7 @@
 package com.helwigdev.a.dogecoinutilities;
 
-import android.app.Activity;
 import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -37,30 +34,35 @@ public class FragmentSingleton {
 	}
 
 	public void reloadData() {
-		ArrayList<String> addressList = new ArrayList<>();
+		ArrayList<String> addressList;
 		mPoolList = new ArrayList<>();
 
 		try {
 			mPoolList = Utilities.getPoolApiList(mContext);
+			addressList = Utilities.getWalletAddressList(mContext);
 
-//			if(addressList.size() != 0){
-//				for(String s : addressList){
-//					mHelper.insertWallet(s);
-//					Log.i(TAG, "Converting wallet storage to new format... ");
-//				}
-//				Utilities.writeAllWalletList(mContext, new ArrayList<String>());//erase old db files
-//			}
+			//convert old custom storage mechanism to new shiny DB storage
+			if(addressList.size() != 0){
+				for(String s : addressList){
+					mHelper.insertWallet(s);
+					Log.i(TAG, "Converting wallet storage to new format... ");
+				}
+				Utilities.writeAllWalletList(mContext, new ArrayList<String>());//erase old db files
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Could not load data from storage: " + e.toString());
 		}
 	}
 
 	public static FragmentSingleton get(Context c) {
+		//#justSingletonThings
 		if (instance == null) {
 			instance = new FragmentSingleton(c);
 		}
 		return instance;
 	}
+
+	//the rest of this class is simple getters/setters
 
 	public DatabaseHelper getHelper(){
 		if(mHelper == null){

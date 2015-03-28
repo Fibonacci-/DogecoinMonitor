@@ -28,6 +28,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		All conversions will be Doge -> Currency
 	 */
 
+	//declare tables and columns
 	private static final String TABLE_WALLET = "wallet";
 	private static final String COLUMN_WALLET_ID = "_id";
 	private static final String COLUMN_WALLET_ADDRESS = "address";
@@ -43,6 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String COLUMN_CONVERSION_RATE_BASE_CURRENCY = "base";
 	private static final String COLUMN_CONVERSION_RATE_RATE = "rate";
 
+	//simple constructor
 	public DatabaseHelper(Context context) {
 		super(context, DB_NAME, null, VERSION);
 	}
@@ -68,7 +70,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		//implement changes here if we ever change the DB
 	}
 
+	//super simple insert, no sanity checks needed
 	public long insertRate(String base, float rate) {
+		Log.i(TAG, "Inserting rates with base " + base + " and rate " + rate);
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_CONVERSION_RATE_BASE_CURRENCY, base);
 		cv.put(COLUMN_CONVERSION_RATE_RATE, rate);
@@ -76,6 +80,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return getWritableDatabase().insert(TABLE_CONVERSION_RATE, null, cv);
 	}
 
+	//same as above
 	public long insertAmount(String address, float amount) {
 		//need to get wallet ID first
 		long walletId = findWalletId(address);
@@ -93,12 +98,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	/*
 	Returns the most recent rate and timestamp of the given base currency
 	 */
-	public long[] getMostRecentRate(String base){
+	public double[] getMostRecentRate(String base){
+		//TODO remove debug logging
 		Log.i(TAG, "Got rate request");
 		Cursor cursor = getReadableDatabase().query(TABLE_CONVERSION_RATE,
 				null, // All columns
-				COLUMN_CONVERSION_RATE_BASE_CURRENCY + " = ?", // Look for a run ID
-				new String[]{ String.valueOf(base) }, // with this value
+				COLUMN_CONVERSION_RATE_BASE_CURRENCY + " = ?", // Look for a row
+				new String[]{base}, // with this value for base
 				null, // group by
 				null,//COLUMN_CONVERSION_RATE_TIMESTAMP + " asc", // order by
 				null, // having
@@ -108,15 +114,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.i(TAG, "Moved cursor");
 		if (cursor.isBeforeFirst() || cursor.isAfterLast()) {
 			Log.i(TAG, "No values found");
-			return new long[]{-1, -1};//if cursor is not empty
+			return new double[]{-1, -1};//if cursor is not empty
 		}
-		long rate = cursor.getLong(cursor.getColumnIndex(COLUMN_CONVERSION_RATE_RATE));
-		double timestamp = cursor.getInt(cursor.getColumnIndex(COLUMN_CONVERSION_RATE_TIMESTAMP));
-		Log.i(TAG, "Got rates: " + rate + " " + timestamp);
+		double rate = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_CONVERSION_RATE_RATE));
+		//this makes me nervous: in sqlite, integers are dynamically represented as up to
+		//8-byte (64-bit) values depending on what's necessary. Java's not so flexible - I'm
+		//concerned that the value of the timestamp may be truncated when we get the value back out
+		//of the database, since Java may not be able to handle the 64-bit int
+		//TODO can this be reworked/optimized?
+		int timestamp = cursor.getInt(cursor.getColumnIndex(COLUMN_CONVERSION_RATE_TIMESTAMP));
+		Log.i(TAG, "Got rates: " + rate + " " + timestamp + " with base " + base);
 		cursor.close();
-		return new long[]{rate, Long.parseLong(timestamp + "")};
+		return new double[]{rate, timestamp};
 	}
 
+	//search for ID of a given wallet string. -1 = error/not found
 	private long findWalletId(String address) {
 		Cursor cursor = getReadableDatabase().query(TABLE_WALLET,
 				null,
@@ -141,6 +153,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return -1;
 	}
 
+	//check if address is already saved, if not, insert the address
 	public long insertWallet(String address) {
 		Cursor cursor = getReadableDatabase().query(TABLE_WALLET,
 				null,
@@ -156,9 +169,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 						(COLUMN_WALLET_ADDRESS));
 				if (address.equals(savedAddress)) {
 					Log.e(TAG, "Address already added: " + address);
-					cursor.close();
-					return cursor.getLong(cursor.getColumnIndex(COLUMN_WALLET_ID));//if we already
+
+					long toReturn = cursor.getLong(cursor.getColumnIndex(COLUMN_WALLET_ID));//if we already
 					// saved this address, return the row ID
+					cursor.close();
+					return toReturn;
 				}
 				cursor.moveToNext();
 			}
@@ -171,6 +186,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return getWritableDatabase().insert(TABLE_WALLET, null, cv);
 	}
 
+	//just return an arraylist of all the addresses
 	public ArrayList<String> queryAddresses() {
 		Log.e(TAG, "Querying addresses");
 		Cursor cursor = getReadableDatabase().query(TABLE_WALLET,

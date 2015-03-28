@@ -39,7 +39,7 @@ import java.util.ArrayList;
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 	//TODO add caught error reporting function
-		implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+
 	//declarations
 
 	protected static final String TAG = "MainActivity";

@@ -11,6 +11,7 @@ import android.widget.TextView;
  * Created by Tyler on 1/11/2015.
  */
 public class NavArrayAdapter extends ArrayAdapter<String> {
+	//TODO this class may be unused - check for uses, write out if not used much
 	public NavArrayAdapter(Context context, int resource, int textViewResourceId,
 						   String[] objects) {
 		super(context, resource, textViewResourceId, objects);

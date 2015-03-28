@@ -25,7 +25,7 @@ import android.widget.ListView;
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
 public class NavigationDrawerFragment extends Fragment {
-
+	//auto-generated nav drawer fragment class
 	/**
 	 * Remember the position of the selected item.
 	 */

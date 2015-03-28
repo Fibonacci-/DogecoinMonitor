@@ -1,5 +1,8 @@
 package com.helwigdev.a.dogecoinutilities;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,11 +12,9 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.concurrent.Callable;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 public class JsonGet implements Callable<Object> {
+
+	//TODO rewrite this - legacy, should be deprecated, I think it's only used in Utilities
 
 	public JsonGet(String url, int JSONType){
 		this.url = url;

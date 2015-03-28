@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
  * Created by Tyler on 1/10/2015.
  */
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+	//simple PreferenceFragment host
 	private static final String ARG_SECTION_NUMBER = "section_number";
 
 	@Override
@@ -33,6 +34,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		switch (key){
 			case "currencyDelim":
+				//TODO merge these preferences
 				PreferenceManager.getDefaultSharedPreferences(getActivity()).edit()
 						.putString(CurrencyFragment.PREF_LOCAL_CURRENCY, sharedPreferences.getString(key, "USD")).apply();
 				break;

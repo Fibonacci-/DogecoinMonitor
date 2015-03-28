@@ -10,9 +10,12 @@ import android.widget.TextView;
 /**
  * Created by Tyler on 3/24/2015.
  * Copyright 2015 by Tyler Helwig
+ * This dialog is shown once when the application is first started up
  */
 public class FirstAlertDialog extends DialogFragment {
+	//TODO: can this be integrated into MainActivity for a little more organization?
 
+	//init data
 	public static FirstAlertDialog newInstance(int title) {
 		FirstAlertDialog frag = new FirstAlertDialog();
 		Bundle args = new Bundle();
@@ -23,6 +26,7 @@ public class FirstAlertDialog extends DialogFragment {
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		//setup view for dialog
 		int title = getArguments().getInt("title");
 
 		TextView tv = new TextView(getActivity());
@@ -32,7 +36,7 @@ public class FirstAlertDialog extends DialogFragment {
 		int padding_in_px = (int) (padding_in_dp * scale + 0.5f);
 
 		tv.setPadding(padding_in_px, padding_in_px, padding_in_px, padding_in_px);
-
+		//build it
 		return new AlertDialog.Builder(getActivity())
 				.setIcon(android.R.drawable.ic_dialog_info)
 				.setTitle(title)

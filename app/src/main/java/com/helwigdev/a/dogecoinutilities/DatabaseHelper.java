@@ -35,7 +35,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	private static final String TABLE_AMOUNT = "amount";
 	private static final String COLUMN_AMOUNT_WALLET_ID = "wallet_id";
-	private static final String COLUMN_AMOUNT_AMOUNT = "amount_amount";
+	private static final String COLUMN_AMOUNT_AMOUNT = "amount";
 	private static final String COLUMN_AMOUNT_TIMESTAMP = "timestamp";
 
 	private static final String TABLE_CONVERSION_RATE = "conversion_rate";
@@ -99,8 +99,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	Returns the most recent rate and timestamp of the given base currency
 	 */
 	public double[] getMostRecentRate(String base){
-		//TODO remove debug logging
-		Log.i(TAG, "Got rate request");
 		Cursor cursor = getReadableDatabase().query(TABLE_CONVERSION_RATE,
 				null, // All columns
 				COLUMN_CONVERSION_RATE_BASE_CURRENCY + " = ?", // Look for a row
@@ -109,11 +107,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				null,//COLUMN_CONVERSION_RATE_TIMESTAMP + " asc", // order by
 				null, // having
 				"1"); // limit 1 row
-		Log.i(TAG, "Made cursor");
+
 		cursor.moveToFirst();
-		Log.i(TAG, "Moved cursor");
+
 		if (cursor.isBeforeFirst() || cursor.isAfterLast()) {
-			Log.i(TAG, "No values found");
+			Log.e(TAG, "No values found");
 			return new double[]{-1, -1};//if cursor is not empty
 		}
 		double rate = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_CONVERSION_RATE_RATE));
@@ -143,8 +141,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		while (!cursor.isAfterLast()) {//step through cursor to check if we have this address saved
 			String savedAddress = cursor.getString(cursor.getColumnIndex(COLUMN_WALLET_ADDRESS));
 			if (address.equals(savedAddress)) {
+				long id = cursor.getLong(cursor.getColumnIndex(COLUMN_WALLET_ID));
 				cursor.close();
-				return cursor.getLong(cursor.getColumnIndex(COLUMN_WALLET_ID));//if we already
+				return id;//if we already
 				// saved this address, return the row ID
 			}
 			cursor.moveToNext();
@@ -188,7 +187,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	//just return an arraylist of all the addresses
 	public ArrayList<String> queryAddresses() {
-		Log.e(TAG, "Querying addresses");
+		Log.i(TAG, "Querying addresses");
 		Cursor cursor = getReadableDatabase().query(TABLE_WALLET,
 				null,
 				null,
@@ -210,6 +209,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		cursor.close();
 		return list;
+	}
+
+	public ArrayList<TimedWallet> queryAmounts(String address){//return all saved amounts for an address
+		ArrayList<TimedWallet> toReturn = new ArrayList<>();
+		Log.i(TAG, "Querying amounts");
+		long walletId = findWalletId(address);
+		if(walletId != -1) {
+			Cursor cursor = getReadableDatabase().query(TABLE_AMOUNT,
+					null, // All columns
+					COLUMN_AMOUNT_WALLET_ID + " = ?", // Look for a row
+					new String[]{walletId + ""}, // with this value for base
+					null, // group by
+					null, // order by
+					null, // having
+					null); // limit 1 row
+			cursor.moveToFirst();
+			if (cursor.isBeforeFirst() || cursor.isAfterLast()) {
+				Log.i(TAG, "No values found");
+				return toReturn;//if cursor is not empty
+			}
+			while(!cursor.isAfterLast()){
+				TimedWallet wallet = new TimedWallet(cursor.getFloat(cursor.getColumnIndex(COLUMN_AMOUNT_AMOUNT)), cursor.getInt(cursor.getColumnIndex(COLUMN_AMOUNT_TIMESTAMP)));
+				toReturn.add(wallet);
+				cursor.moveToNext();
+			}
+			cursor.close();
+		}
+		return toReturn;//will be empty if anything went wrong
+	}
+
+	public class TimedWallet{
+		public TimedWallet(float amount, int timestamp){
+			this.amount = amount;
+			this.timestamp = timestamp;
+		}
+		public float amount;
+		public int timestamp;
 	}
 
 }

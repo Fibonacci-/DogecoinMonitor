@@ -42,12 +42,13 @@ public class FragmentSingleton {
 			addressList = Utilities.getWalletAddressList(mContext);
 
 			//convert old custom storage mechanism to new shiny DB storage
-			if(addressList.size() != 0){
-				for(String s : addressList){
+			if (addressList.size() != 0) {
+				for (String s : addressList) {
 					mHelper.insertWallet(s);
 					Log.i(TAG, "Converting wallet storage to new format... ");
 				}
-				Utilities.writeAllWalletList(mContext, new ArrayList<String>());//erase old db files
+				Utilities.writeAllWalletList(mContext, new ArrayList<String>());//erase old db
+				// files
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Could not load data from storage: " + e.toString());
@@ -64,8 +65,8 @@ public class FragmentSingleton {
 
 	//the rest of this class is simple getters/setters
 
-	public DatabaseHelper getHelper(){
-		if(mHelper == null){
+	public DatabaseHelper getHelper() {
+		if (mHelper == null) {
 			mHelper = new DatabaseHelper(mContext);
 		}
 		return mHelper;
@@ -75,6 +76,9 @@ public class FragmentSingleton {
 		return mPoolList;
 	}
 
+	public ArrayList<DatabaseHelper.TimedWallet> queryAmounts(String address) {
+		return mHelper.queryAmounts(address);
+	}
 
 	public ArrayList<String> getAddressList() {
 		return mHelper.queryAddresses();
@@ -84,6 +88,10 @@ public class FragmentSingleton {
 
 		mHelper.insertWallet(address);
 
+	}
+
+	public void addAmount(String address, float balance){
+		mHelper.insertAmount(address, balance);
 	}
 
 	public void addPool(String apiString) {
@@ -120,7 +128,7 @@ public class FragmentSingleton {
 
 	}
 
-	public void saveData(){
+	public void saveData() {
 		Log.i(TAG, "Saving data to disk");
 		Utilities.writeAllPoolApiList(mContext, mPoolList);
 	}

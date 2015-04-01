@@ -15,6 +15,6 @@ public class PollService extends IntentService {
 	}
 	@Override
 	protected void onHandleIntent(Intent intent) {
-
+		//TODO poll for all wallet amounts, conversion rates, and sat rates
 	}
 }

@@ -84,7 +84,20 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 				for(String s : walletList){
 					//get list of amounts and times
 					//add new series for each wallet
+					ArrayList<DatabaseHelper.TimedWallet> tWalletList = mFragmentSingleton.queryAmounts(s);
+					DataPoint[] pointArray = new DataPoint[tWalletList.size()];
+					for(int i = 0; i < tWalletList.size(); i++){
+						//fill dat array
+						pointArray[i] = new DataPoint(new Date(tWalletList.get(i).timestamp), tWalletList.get(i).amount);
+					}
+					if(pointArray.length > 0) {
+						seriesList.add(new LineGraphSeries<DataPoint>(pointArray));
+					}
 				}
+
+				GraphDialog graphDialog = GraphDialog.newInstance(R.string.hello);
+				graphDialog.setSeriesArray(seriesList);
+				graphDialog.show(getFragmentManager(), "graph");
 			}
 		});
 		cvTotalFiat.setOnClickListener(new View.OnClickListener() {
@@ -154,6 +167,10 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 	public void onGetAddressBalance(String address, String balance) {
 		//called when asynctask for balances completes
 		//updates UI with formatted info and starts the next task
+		try {
+			float fBalance = Float.parseFloat(balance);//if the balance string cannot be parsed the code will exit here
+			mFragmentSingleton.addAmount(address, fBalance);
+		}catch (Exception ignored){}
 
 		/* Create a new row to be added. */
 		TableRow tr = new TableRow(getActivity());

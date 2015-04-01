@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -16,6 +17,9 @@ import android.view.ViewGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -65,6 +69,38 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 							 Bundle savedInstanceState) {
 		//setup views etc
 		View v = inflater.inflate(R.layout.fragment_wallet, container, false);
+
+		CardView cvTotalDoge = (CardView) v.findViewById(R.id.card_view_wallet_total_doge);
+		CardView cvTotalFiat = (CardView) v.findViewById(R.id.card_view_wallet_total_fiat);
+		CardView cvTotalBtc = (CardView) v.findViewById(R.id.card_view_wallet_total_btc);
+
+		cvTotalDoge.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//setup graph view for total doge
+				ArrayList<LineGraphSeries<DataPoint>> seriesList = new ArrayList<>();
+				//get list of wallets
+				ArrayList<String> walletList = mFragmentSingleton.getAddressList();
+				for(String s : walletList){
+					//get list of amounts and times
+					//add new series for each wallet
+				}
+			}
+		});
+		cvTotalFiat.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//setup graph view for total fiat
+				//may need progressbar as this could take some time
+			}
+		});
+		cvTotalBtc.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//setup graph view for btc
+				//progressbar etc
+			}
+		});
 
 		mActivity = getActivity();
 

@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	Okay, let's plan out this DB.
 	Will need:
 	Table of wallets: _id pk ai, address
-	Table of amounts: wallet_id, amount
+	Table of amounts: wallet_id, amount, timestamp
 	Table of conversion rates: _id (timestamp) pk, currency, rate
 		All conversions will be Doge -> Currency
 	 */

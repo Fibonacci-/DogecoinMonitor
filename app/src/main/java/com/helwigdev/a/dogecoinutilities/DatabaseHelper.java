@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Tyler on 3/23/2015.
@@ -71,7 +72,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	//super simple insert, no sanity checks needed
-	public long insertRate(String base, float rate) {
+	public long insertRate(String base, double rate) {
 		Log.i(TAG, "Inserting rates with base " + base + " and rate " + rate);
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_CONVERSION_RATE_BASE_CURRENCY, base);
@@ -104,7 +105,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				COLUMN_CONVERSION_RATE_BASE_CURRENCY + " = ?", // Look for a row
 				new String[]{base}, // with this value for base
 				null, // group by
-				null,//COLUMN_CONVERSION_RATE_TIMESTAMP + " asc", // order by
+				null, // order by
 				null, // having
 				"1"); // limit 1 row
 
@@ -237,6 +238,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			cursor.close();
 		}
 		return toReturn;//will be empty if anything went wrong
+	}
+
+	public double getRateNearTime(String base, long timestamp) {
+		Log.i(TAG, "Looking for " + base + " value near " + timestamp);
+		long range = 43200000;//12 hours on either side
+		long lower = timestamp - range;
+		long higher = timestamp + range;
+		Cursor cursor = getReadableDatabase().query(TABLE_CONVERSION_RATE,
+				null,
+				COLUMN_CONVERSION_RATE_BASE_CURRENCY + " = ?",
+				new String[]{base},
+				null,
+				null,
+				null,
+				null);
+		cursor.moveToFirst();
+		if (cursor.isBeforeFirst() || cursor.isAfterLast()) {
+			Log.i(TAG, "No values found");
+			return -1;//if cursor is not empty
+		}
+		//find the closest rate to the timestamp
+		long timeDifference = Long.MAX_VALUE;
+		double rate = -1;
+		while (!cursor.isAfterLast()){
+			int time = cursor.getInt(cursor.getColumnIndex(COLUMN_CONVERSION_RATE_TIMESTAMP));//still don't like this
+			long difference;
+			//a little algorithm to find the smallest difference between times
+			//TODO verify this works
+			if(timestamp > time){
+				difference = timestamp - time;
+			} else {
+				difference = time - timestamp;
+			}
+			if(difference < timeDifference){
+				timeDifference = difference;
+				rate = cursor.getDouble(cursor.getColumnIndex(COLUMN_CONVERSION_RATE_RATE));
+			}
+			cursor.moveToNext();
+		}
+		cursor.close();
+		return rate;
 	}
 
 	public class TimedWallet{

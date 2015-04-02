@@ -6,11 +6,13 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
+import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by Tyler on 4/1/2015.
@@ -19,12 +21,14 @@ import java.util.ArrayList;
 public class GraphDialog extends DialogFragment {
 
 	public ArrayList<LineGraphSeries<DataPoint>> seriesArray = new ArrayList<>();
+	GraphView graph;
 
 	public static GraphDialog newInstance(int title) {
 		GraphDialog frag = new GraphDialog();
 		Bundle args = new Bundle();
 		args.putInt("title", title);
 		frag.setArguments(args);
+
 		return frag;
 	}
 
@@ -33,13 +37,14 @@ public class GraphDialog extends DialogFragment {
 		this.seriesArray = seriesArray;
 	}
 
+
+
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		//setup view for dialog
 
 		int title = getArguments().getInt("title");
-
-		GraphView graph = new GraphView(getActivity());
+		graph = new GraphView(getActivity());
 
 		for(LineGraphSeries s : seriesArray){
 			graph.addSeries(s);

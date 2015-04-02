@@ -98,6 +98,14 @@ public class FragmentSingleton {
 		mPoolList.add(apiString);
 	}
 
+	public void addRate(String base, double rate){
+		mHelper.insertRate(base, rate);
+	}
+
+	public double getRateNearTime(String base, long timestamp){
+		return mHelper.getRateNearTime(base, timestamp);
+	}
+
 	public CurrencyFragment getCurrencyFragment() {
 		if (mCurrencyFragment == null) {
 			mCurrencyFragment = CurrencyFragment.newInstance(CURRENCY_FRAGMENT_POSITION + 1);

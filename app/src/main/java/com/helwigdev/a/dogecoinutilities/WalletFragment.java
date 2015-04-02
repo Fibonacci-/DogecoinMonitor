@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -81,16 +82,16 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 				ArrayList<LineGraphSeries<DataPoint>> seriesList = new ArrayList<>();
 				//get list of wallets
 				ArrayList<String> walletList = mFragmentSingleton.getAddressList();
-				for(String s : walletList){
+				for (String s : walletList) {
 					//get list of amounts and times
 					//add new series for each wallet
 					ArrayList<DatabaseHelper.TimedWallet> tWalletList = mFragmentSingleton.queryAmounts(s);
 					DataPoint[] pointArray = new DataPoint[tWalletList.size()];
-					for(int i = 0; i < tWalletList.size(); i++){
+					for (int i = 0; i < tWalletList.size(); i++) {
 						//fill dat array
 						pointArray[i] = new DataPoint(new Date(tWalletList.get(i).timestamp), tWalletList.get(i).amount);
 					}
-					if(pointArray.length > 0) {
+					if (pointArray.length > 0) {
 						seriesList.add(new LineGraphSeries<DataPoint>(pointArray));
 					}
 				}
@@ -105,6 +106,39 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 			public void onClick(View v) {
 				//setup graph view for total fiat
 				//may need progressbar as this could take some time
+				String localCurrency = PreferenceManager.
+						getDefaultSharedPreferences(getActivity()).getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
+				//get list of wallets
+				ArrayList<String> walletList = mFragmentSingleton.getAddressList();
+				ArrayList<LineGraphSeries<DataPoint>> seriesList = new ArrayList<>();
+
+				for(String s : walletList){
+					//get list of wallets with associated times
+					ArrayList<DatabaseHelper.TimedWallet> tWalletList = mFragmentSingleton.queryAmounts(s);
+					DataPoint[] pointArray = new DataPoint[tWalletList.size()];
+					for (int i = 0; i < tWalletList.size(); i++) {
+						//iterate through wallet list and make a new line for each
+
+						DatabaseHelper.TimedWallet wallet = tWalletList.get(i);
+						double rate = mFragmentSingleton.getRateNearTime(localCurrency, wallet.timestamp);
+						if(rate != -1){
+							//get amount in fiat
+							double amount = rate * wallet.amount;
+							pointArray[i] = new DataPoint(new Date(wallet.timestamp), amount);
+						}else {
+							pointArray[i] = new DataPoint(new Date(wallet.timestamp), 0);
+						}
+					}
+					if (pointArray.length > 0) {
+						seriesList.add(new LineGraphSeries<>(pointArray));
+					}
+				}
+
+
+				GraphDialog graphDialog = GraphDialog.newInstance(R.string.hello);
+				graphDialog.setSeriesArray(seriesList);
+				graphDialog.show(getFragmentManager(), "graph");
+
 			}
 		});
 		cvTotalBtc.setOnClickListener(new View.OnClickListener() {
@@ -112,6 +146,35 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 			public void onClick(View v) {
 				//setup graph view for btc
 				//progressbar etc
+				ArrayList<String> walletList = mFragmentSingleton.getAddressList();
+				ArrayList<LineGraphSeries<DataPoint>> seriesList = new ArrayList<>();
+
+				for(String s : walletList){
+					//get list of wallets with associated times
+					ArrayList<DatabaseHelper.TimedWallet> tWalletList = mFragmentSingleton.queryAmounts(s);
+					DataPoint[] pointArray = new DataPoint[tWalletList.size()];
+					for (int i = 0; i < tWalletList.size(); i++) {
+						//iterate through wallet list and make a new line for each
+
+						DatabaseHelper.TimedWallet wallet = tWalletList.get(i);
+						double rate = mFragmentSingleton.getRateNearTime("BTC", wallet.timestamp);
+						if(rate != -1){
+							//get amount in fiat
+							double amount = rate * wallet.amount;
+							pointArray[i] = new DataPoint(new Date(wallet.timestamp), amount);
+						} else {
+							pointArray[i] = new DataPoint(new Date(wallet.timestamp), 0);
+						}
+					}
+					if (pointArray.length > 0) {
+						seriesList.add(new LineGraphSeries<>(pointArray));
+					}
+				}
+
+				GraphDialog graphDialog = GraphDialog.newInstance(R.string.hello);
+				graphDialog.setSeriesArray(seriesList);
+				graphDialog.show(getFragmentManager(), "graph");
+
 			}
 		});
 
@@ -170,10 +233,11 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 		try {
 			float fBalance = Float.parseFloat(balance);//if the balance string cannot be parsed the code will exit here
 			mFragmentSingleton.addAmount(address, fBalance);
-		}catch (Exception ignored){}
+		} catch (Exception ignored) {
+		}
 
 		/* Create a new row to be added. */
-		TableRow tr = new TableRow(getActivity());
+		TableRow tr = new TableRow(mActivity);
 		tr.setLayoutParams(new TableRow.LayoutParams(
 				TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
@@ -260,6 +324,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 			totalBtc += balances[0];
 			totalFiat += balances[1];
 
+
 			Log.i(TAG, "Got btc amount:" + balances[0] + " and fiat amount: " + balances[1]);
 
 			TextView tvBtc = new TextView(getActivity());
@@ -311,6 +376,8 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 			mTotalFiatTable.addView(trFiat);
 			mTotalFiatTable.addView(vv);
+
+
 		}
 
 	}
@@ -344,7 +411,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 				if (btcRecents[0] != -1 && fiatRecents[0] != -1) {//if we have both values
 					if ((time - fiveMinutesInMillis) > btcRecents[1] && (time -
 							fiveMinutesInMillis) > fiatRecents[1]) {//if our values are less than
-							// 5 minutes old
+						// 5 minutes old
 						float dogeBalance = Float.parseFloat(s);
 						Log.i("BTCValuesGet", "Taking a shortcut - found old values for " +
 								"currencies");

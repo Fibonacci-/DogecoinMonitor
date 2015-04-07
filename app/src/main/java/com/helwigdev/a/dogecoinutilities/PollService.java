@@ -1,7 +1,9 @@
 package com.helwigdev.a.dogecoinutilities;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 
 /**
  * Created by Tyler on 3/27/2015.
@@ -16,5 +18,15 @@ public class PollService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		//TODO poll for all wallet amounts, conversion rates, and sat rates
+		//check for network
+		//include legacy network check
+			ConnectivityManager cm = (ConnectivityManager)
+					getSystemService(Context.CONNECTIVITY_SERVICE);
+			@SuppressWarnings("deprecation")
+			boolean isNetworkAvailable = cm.getBackgroundDataSetting() &&
+					cm.getActiveNetworkInfo() != null;
+			if (!isNetworkAvailable) return;
+
+
 	}
 }

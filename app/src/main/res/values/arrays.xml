@@ -43,7 +43,6 @@
 	    <item name="120">2 hours</item>
 	    <item name="360">6 hours</item>
         <item name="720">12 hours</item>
-        <item name="1440">24 hours</item>
 	</string-array>
 	<string-array name="main_refresh_rates_values">
 	    <item name="30">30</item>
@@ -51,7 +50,6 @@
 	    <item name="120">120</item>
 	    <item name="360">360</item>
         <item name="720">720</item>
-        <item name="1440">1440</item>
 	    
 	</string-array>
 	

@@ -230,7 +230,6 @@ public class MainActivity extends Activity
 				onSectionAttached(positionBeforeScan + 1);
 				mNavigationDrawerFragment.setItemPosition(positionBeforeScan);
 
-
 				Intent i = new Intent(this, SettingsActivity.class);
 				startActivity(i);
 				break;
@@ -244,9 +243,9 @@ public class MainActivity extends Activity
 		//if the device is on a flat surface, it will not switch back into portrait mode after scanning a qr code
 		//this fixes that issue
 		//TODO investigate if this will force the activity into portrait mode for the remainder of the activity lifecycle
-		if (rotationBeforeScan == 0) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		}
+//		if (rotationBeforeScan == 0) {
+//			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//		}
 		if (resultCode != Activity.RESULT_OK) {
 			return;
 		}

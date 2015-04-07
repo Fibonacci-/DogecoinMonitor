@@ -127,6 +127,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return new double[]{rate, timestamp};
 	}
 
+	public ArrayList<Object[]> getBaseValues(String base){
+
+		ArrayList<Object[]> toReturn = new ArrayList<>();
+		Cursor cursor = getReadableDatabase().query(TABLE_CONVERSION_RATE,
+				null, // All columns
+				COLUMN_CONVERSION_RATE_BASE_CURRENCY + " = ?", // Look for a row
+				new String[]{base}, // with this value for base
+				null, // group by
+				null, // order by
+				null, // having
+				null); // no limit
+
+		cursor.moveToFirst();
+		Log.i(TAG, "Querying all rates");
+		while(!cursor.isAfterLast()){
+			Log.i(TAG, "Adding new rate");
+			toReturn.add(new Object[]{
+				cursor.getDouble(cursor.getColumnIndex(COLUMN_CONVERSION_RATE_RATE)),
+				cursor.getLong(cursor.getColumnIndex(COLUMN_CONVERSION_RATE_TIMESTAMP))
+			});
+			cursor.moveToNext();
+		}
+		cursor.close();
+		return toReturn;
+	}
+
 	//search for ID of a given wallet string. -1 = error/not found
 	private long findWalletId(String address) {
 		Cursor cursor = getReadableDatabase().query(TABLE_WALLET,

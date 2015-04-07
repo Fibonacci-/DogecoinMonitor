@@ -7,11 +7,12 @@
     -->
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
     <PreferenceCategory android:title="General">
+
         <Preference android:title="@string/title_activity_help" >
             <intent
                 android:action="android.intent.action.VIEW"
-                android:targetClass="com.helwigdev.a.dogecoinutilities.Help"
-                android:targetPackage="com.helwigdev.a.dogecoinutilities" />
+                android:data="@string/help_url"/>
+
         </Preference>
         <ListPreference
             android:defaultValue="USD"
@@ -34,12 +35,16 @@
 
 
     </PreferenceCategory>
-    <PreferenceCategory android:title="Backup / Restore">
+    <PreferenceCategory android:title="Backup / Restore"
+        android:enabled="false"
+        android:summary="@string/coming_soon">
         <Preference
             android:key="backup"
+            android:summary="@string/coming_soon"
             android:title="@string/sBackup_to_sd" />
         <Preference
             android:key="restore"
+            android:summary="@string/coming_soon"
             android:title="@string/sRestore" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Donate">

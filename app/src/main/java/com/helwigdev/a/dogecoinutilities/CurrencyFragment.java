@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,6 +19,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,6 +34,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by Tyler on 2/19/2015.
@@ -48,6 +53,7 @@ public class CurrencyFragment extends Fragment {
 	private TextView tvFiatTitle;
 	private TextView tvFiatSub1;
 	private TextView tvFiatSub2;
+	private FragmentSingleton mFragmentSingleton;
 
 	private boolean isLaunching;
 
@@ -63,7 +69,7 @@ public class CurrencyFragment extends Fragment {
 		//if first launch of fragment
 		isLaunching = savedInstanceState != null;
 		isLaunching = !isLaunching;
-
+		mFragmentSingleton = FragmentSingleton.get(getActivity());
 	}
 
 	@Nullable
@@ -72,6 +78,35 @@ public class CurrencyFragment extends Fragment {
 							 Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_currency, container, false);
 
+		CardView cvSat = (CardView) v.findViewById(R.id.card_view_sat);
+		cvSat.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ArrayList<Object[]> satList = mFragmentSingleton.getHelper().getBaseValues("BTC");
+				for(Object[] d : satList){
+					d[0] = (double) d[0] * 100000000;//convert to sat
+				}
+				DataPoint[] points = new DataPoint[satList.size()];
+				for(int i = 0; i < satList.size(); i++){
+					Object[] d = satList.get(i);
+					points[i] = new DataPoint(new Date((long) d[1]), (double)d[0]);
+				}
+				LineGraphSeries<DataPoint> series = new LineGraphSeries<>(points);
+				GraphDialog dialog = GraphDialog.newInstance(R.string.hello);
+				ArrayList<LineGraphSeries<DataPoint>> seriesArray = new ArrayList<LineGraphSeries<DataPoint>>();
+				seriesArray.add(series);
+				dialog.setSeriesArray(seriesArray);
+				dialog.show(getFragmentManager(), "graph");
+			}
+		});
+		CardView cvFiat = (CardView) v.findViewById(R.id.card_view_fiat);
+		cvFiat.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				String local = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(PREF_LOCAL_CURRENCY, "USD");
+				ArrayList<Object[]> fiatList = mFragmentSingleton.getHelper().getBaseValues(local);
+			}
+		});
 		//link to xml
 		pbSat = (ProgressBar) v.findViewById(R.id.prog_sat);
 		tvSatSub1 = (TextView) v.findViewById(R.id.tv_frag_sub_satoshi_1);

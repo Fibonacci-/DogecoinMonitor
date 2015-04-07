@@ -57,5 +57,7 @@
         If I get even one email, I\'ll re-add the functionality. As you\'re reading this, some background changes are happening to make the app
         faster and more responsive. \n\nAs always, feel free to email me at helwigdev@gmail.com, and thanks for using my app!</string>
     <string name="pref_polling">Poll for new data in the background</string>
+    <string name="coming_soon">Coming soon!</string>
+    <string name="help_url">http://www.helwigdev.com/dogecoinhelp.php</string>
 
 </resources>

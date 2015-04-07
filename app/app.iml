@@ -89,7 +89,6 @@
     <orderEntry type="library" exported="" name="zxing-android-legacy-2.0.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-drive-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-maps-7.0.0" level="project" />
-    <orderEntry type="library" exported="" name="graphview-4.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-appindexing-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-cast-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-wearable-7.0.0" level="project" />

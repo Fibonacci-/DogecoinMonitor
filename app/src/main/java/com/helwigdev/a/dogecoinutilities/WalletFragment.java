@@ -17,10 +17,6 @@ import android.view.ViewGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -74,109 +70,109 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 		CardView cvTotalDoge = (CardView) v.findViewById(R.id.card_view_wallet_total_doge);
 		CardView cvTotalFiat = (CardView) v.findViewById(R.id.card_view_wallet_total_fiat);
 		CardView cvTotalBtc = (CardView) v.findViewById(R.id.card_view_wallet_total_btc);
-
-		cvTotalDoge.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				//setup graph view for total doge
-				ArrayList<LineGraphSeries<DataPoint>> seriesList = new ArrayList<>();
-				//get list of wallets
-				ArrayList<String> walletList = mFragmentSingleton.getAddressList();
-				for (String s : walletList) {
-					//get list of amounts and times
-					//add new series for each wallet
-					ArrayList<DatabaseHelper.TimedWallet> tWalletList = mFragmentSingleton.queryAmounts(s);
-					DataPoint[] pointArray = new DataPoint[tWalletList.size()];
-					for (int i = 0; i < tWalletList.size(); i++) {
-						//fill dat array
-						pointArray[i] = new DataPoint(new Date(tWalletList.get(i).timestamp), tWalletList.get(i).amount);
-					}
-					if (pointArray.length > 0) {
-						seriesList.add(new LineGraphSeries<DataPoint>(pointArray));
-					}
-				}
-
-				GraphDialog graphDialog = GraphDialog.newInstance(R.string.hello);
-				graphDialog.setSeriesArray(seriesList);
-				graphDialog.show(getFragmentManager(), "graph");
-			}
-		});
-		cvTotalFiat.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				//setup graph view for total fiat
-				//may need progressbar as this could take some time
-				String localCurrency = PreferenceManager.
-						getDefaultSharedPreferences(getActivity()).getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
-				//get list of wallets
-				ArrayList<String> walletList = mFragmentSingleton.getAddressList();
-				ArrayList<LineGraphSeries<DataPoint>> seriesList = new ArrayList<>();
-
-				for(String s : walletList){
-					//get list of wallets with associated times
-					ArrayList<DatabaseHelper.TimedWallet> tWalletList = mFragmentSingleton.queryAmounts(s);
-					DataPoint[] pointArray = new DataPoint[tWalletList.size()];
-					for (int i = 0; i < tWalletList.size(); i++) {
-						//iterate through wallet list and make a new line for each
-
-						DatabaseHelper.TimedWallet wallet = tWalletList.get(i);
-						double rate = mFragmentSingleton.getRateNearTime(localCurrency, wallet.timestamp);
-						if(rate != -1){
-							//get amount in fiat
-							double amount = rate * wallet.amount;
-							pointArray[i] = new DataPoint(new Date(wallet.timestamp), amount);
-						}else {
-							pointArray[i] = new DataPoint(new Date(wallet.timestamp), 0);
-						}
-					}
-					if (pointArray.length > 0) {
-						seriesList.add(new LineGraphSeries<>(pointArray));
-					}
-				}
-
-
-				GraphDialog graphDialog = GraphDialog.newInstance(R.string.hello);
-				graphDialog.setSeriesArray(seriesList);
-				graphDialog.show(getFragmentManager(), "graph");
-
-			}
-		});
-		cvTotalBtc.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				//setup graph view for btc
-				//progressbar etc
-				ArrayList<String> walletList = mFragmentSingleton.getAddressList();
-				ArrayList<LineGraphSeries<DataPoint>> seriesList = new ArrayList<>();
-
-				for(String s : walletList){
-					//get list of wallets with associated times
-					ArrayList<DatabaseHelper.TimedWallet> tWalletList = mFragmentSingleton.queryAmounts(s);
-					DataPoint[] pointArray = new DataPoint[tWalletList.size()];
-					for (int i = 0; i < tWalletList.size(); i++) {
-						//iterate through wallet list and make a new line for each
-
-						DatabaseHelper.TimedWallet wallet = tWalletList.get(i);
-						double rate = mFragmentSingleton.getRateNearTime("BTC", wallet.timestamp);
-						if(rate != -1){
-							//get amount in fiat
-							double amount = rate * wallet.amount;
-							pointArray[i] = new DataPoint(new Date(wallet.timestamp), amount);
-						} else {
-							pointArray[i] = new DataPoint(new Date(wallet.timestamp), 0);
-						}
-					}
-					if (pointArray.length > 0) {
-						seriesList.add(new LineGraphSeries<>(pointArray));
-					}
-				}
-
-				GraphDialog graphDialog = GraphDialog.newInstance(R.string.hello);
-				graphDialog.setSeriesArray(seriesList);
-				graphDialog.show(getFragmentManager(), "graph");
-
-			}
-		});
+//
+//		cvTotalDoge.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				//setup graph view for total doge
+//				ArrayList<LineGraphSeries<DataPoint>> seriesList = new ArrayList<>();
+//				//get list of wallets
+//				ArrayList<String> walletList = mFragmentSingleton.getAddressList();
+//				for (String s : walletList) {
+//					//get list of amounts and times
+//					//add new series for each wallet
+//					ArrayList<DatabaseHelper.TimedWallet> tWalletList = mFragmentSingleton.queryAmounts(s);
+//					DataPoint[] pointArray = new DataPoint[tWalletList.size()];
+//					for (int i = 0; i < tWalletList.size(); i++) {
+//						//fill dat array
+//						pointArray[i] = new DataPoint(new Date(tWalletList.get(i).timestamp), tWalletList.get(i).amount);
+//					}
+//					if (pointArray.length > 0) {
+//						seriesList.add(new LineGraphSeries<DataPoint>(pointArray));
+//					}
+//				}
+//
+//				GraphDialog graphDialog = GraphDialog.newInstance(R.string.hello);
+//				graphDialog.setSeriesArray(seriesList);
+//				graphDialog.show(getFragmentManager(), "graph");
+//			}
+//		});
+//		cvTotalFiat.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				//setup graph view for total fiat
+//				//may need progressbar as this could take some time
+//				String localCurrency = PreferenceManager.
+//						getDefaultSharedPreferences(getActivity()).getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
+//				//get list of wallets
+//				ArrayList<String> walletList = mFragmentSingleton.getAddressList();
+//				ArrayList<LineGraphSeries<DataPoint>> seriesList = new ArrayList<>();
+//
+//				for(String s : walletList){
+//					//get list of wallets with associated times
+//					ArrayList<DatabaseHelper.TimedWallet> tWalletList = mFragmentSingleton.queryAmounts(s);
+//					DataPoint[] pointArray = new DataPoint[tWalletList.size()];
+//					for (int i = 0; i < tWalletList.size(); i++) {
+//						//iterate through wallet list and make a new line for each
+//
+//						DatabaseHelper.TimedWallet wallet = tWalletList.get(i);
+//						double rate = mFragmentSingleton.getRateNearTime(localCurrency, wallet.timestamp);
+//						if(rate != -1){
+//							//get amount in fiat
+//							double amount = rate * wallet.amount;
+//							pointArray[i] = new DataPoint(new Date(wallet.timestamp), amount);
+//						}else {
+//							pointArray[i] = new DataPoint(new Date(wallet.timestamp), 0);
+//						}
+//					}
+//					if (pointArray.length > 0) {
+//						seriesList.add(new LineGraphSeries<>(pointArray));
+//					}
+//				}
+//
+//
+//				GraphDialog graphDialog = GraphDialog.newInstance(R.string.hello);
+//				graphDialog.setSeriesArray(seriesList);
+//				graphDialog.show(getFragmentManager(), "graph");
+//
+//			}
+//		});
+//		cvTotalBtc.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				//setup graph view for btc
+//				//progressbar etc
+//				ArrayList<String> walletList = mFragmentSingleton.getAddressList();
+//				ArrayList<LineGraphSeries<DataPoint>> seriesList = new ArrayList<>();
+//
+//				for(String s : walletList){
+//					//get list of wallets with associated times
+//					ArrayList<DatabaseHelper.TimedWallet> tWalletList = mFragmentSingleton.queryAmounts(s);
+//					DataPoint[] pointArray = new DataPoint[tWalletList.size()];
+//					for (int i = 0; i < tWalletList.size(); i++) {
+//						//iterate through wallet list and make a new line for each
+//
+//						DatabaseHelper.TimedWallet wallet = tWalletList.get(i);
+//						double rate = mFragmentSingleton.getRateNearTime("BTC", wallet.timestamp);
+//						if(rate != -1){
+//							//get amount in fiat
+//							double amount = rate * wallet.amount;
+//							pointArray[i] = new DataPoint(new Date(wallet.timestamp), amount);
+//						} else {
+//							pointArray[i] = new DataPoint(new Date(wallet.timestamp), 0);
+//						}
+//					}
+//					if (pointArray.length > 0) {
+//						seriesList.add(new LineGraphSeries<>(pointArray));
+//					}
+//				}
+//
+//				GraphDialog graphDialog = GraphDialog.newInstance(R.string.hello);
+//				graphDialog.setSeriesArray(seriesList);
+//				graphDialog.show(getFragmentManager(), "graph");
+//
+//			}
+//		});
 
 		mActivity = getActivity();
 

@@ -2,10 +2,15 @@ package com.helwigdev.a.dogecoinutilities;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceScreen;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends PreferenceActivity {
 	//host for SettingsFragment
 
 	@Override
@@ -16,6 +21,7 @@ public class SettingsActivity extends Activity {
 				.replace(android.R.id.content, new SettingsFragment())
 				.commit();
 	}
+
 
 
 	@Override

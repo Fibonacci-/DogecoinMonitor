@@ -276,11 +276,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 		HttpURLConnection connection = null;
 		String toReturn = null;
 		try {
-			//TODO check response
-			//Thread.sleep(100);//block.io doesn't like too many requests per second - we have to
-			// artificially restrict it
-			//TODO change limit when DB lookup is working correctly
-			//TODO got some redundant network lookup code. consolidate
+			//TODO got some redundant network lookup code. consolidate WDG, etc
 			connection = (HttpURLConnection) new URL(url).openConnection();
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -331,7 +327,9 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 			tvBtc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
 			tvFiat.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
 
-			//TODO is it possible to use just v instead of v and vv?
+			//is it possible to use just v instead of v and vv?
+			//nope, gotta duplicate, views can't have more than one parent.
+			//we know that now
 			trBtc.addView(tvBtc);
 			View v = new View(getActivity());
 			v.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 1));
@@ -396,18 +394,22 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 		protected Double[] doInBackground(String... params) {
 			for (String s : params) {//this will only pay attention to the first value in params - it's just a nice way of catching if there are no values in params
-				//TODO optimize this!
 				//rate, timestamp
 				double[] btcRecents = mFragmentSingleton.getHelper().getMostRecentRate("BTC");
 				double[] fiatRecents = mFragmentSingleton.getHelper().getMostRecentRate(fiatBase);
 				double time = new Date().getTime();
 
-				double fiveMinutesInMillis = 300000;
+				double twoMinutesInMillis = 120000;
+
+				if(Double.parseDouble(s) == 0){//no need to look up how much 0 doge is worth
+					Log.d(TAG, "Found a 0 for conversion");
+					return new Double[]{0d,0d};
+				}
 
 				if (btcRecents[0] != -1 && fiatRecents[0] != -1) {//if we have both values
-					if ((time - fiveMinutesInMillis) > btcRecents[1] && (time -
-							fiveMinutesInMillis) > fiatRecents[1]) {//if our values are less than
-						// 5 minutes old
+					if ((time - twoMinutesInMillis) < btcRecents[1] && (time -
+							twoMinutesInMillis) < fiatRecents[1]) {//if our values are less than
+						//  two minutes old
 						float dogeBalance = Float.parseFloat(s);
 						Log.i("BTCValuesGet", "Taking a shortcut - found old values for " +
 								"currencies");
@@ -420,8 +422,20 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 					Log.i(TAG, "DB data bad - updating from network");
 				}
 
+
 				String btcRaw = getStringFromUrl(btc);
 				String fiatRaw = getStringFromUrl(fiat);
+
+				if(btcRaw == null || fiatRaw == null){
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					Log.e(TAG, "Error getting URL data - retrying");
+					this.doInBackground(s);
+					return null;
+				}
 
 				try {
 					//step through json string
@@ -434,7 +448,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 					JSONArray btcArray = btcData.getJSONArray("prices");
 					JSONArray fiatArray = fiatData.getJSONArray("prices");
 
-					//init floats to -1 - will be interpreted as errors when entered into DB
+					//init floats to -1 - will be interpreted as errors if entered into DB
 
 					float avgBtc = -1;
 
@@ -484,7 +498,6 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 	public static class GetWalletBalance extends AsyncTask<String, Void, String> {
 		//get and parse network data
-		//TODO really need to reduce redundancy here, way too much copy/pasted code
 
 		private String apiUrl = "https://dogechain.info/chain/Dogecoin/q/addressbalance/";
 		private WalletListener mWalletListener;

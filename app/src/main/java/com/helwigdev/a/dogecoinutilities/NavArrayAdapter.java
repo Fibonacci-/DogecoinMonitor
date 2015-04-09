@@ -11,7 +11,6 @@ import android.widget.TextView;
  * Created by Tyler on 1/11/2015.
  */
 public class NavArrayAdapter extends ArrayAdapter<String> {
-	//TODO this class may be unused - check for uses, write out if not used much
 	public NavArrayAdapter(Context context, int resource, int textViewResourceId,
 						   String[] objects) {
 		super(context, resource, textViewResourceId, objects);
@@ -37,15 +36,7 @@ public class NavArrayAdapter extends ArrayAdapter<String> {
 			holder = (Holder) row.getTag();
 		}
 		holder.mTitle.setText(titleArray[position]);
-//		if(position == 0) {
-//			holder.mTitle.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_, 0, 0, 0);
-//		} else if(position == 1){
-//			holder.mTitle.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_add, 0, 0, 0);
-//		} else if(position == 2) {
-//			holder.mTitle.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_add, 0, 0, 0);
-//		} else if (position == 3){
-//			holder.mTitle.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_preferences, 0, 0, 0);
-//		}//no icons.
+		//implement nav drawer specific view things here
 
 		return row;
 
@@ -55,4 +46,3 @@ public class NavArrayAdapter extends ArrayAdapter<String> {
 		TextView mTitle;
 	}
 }
-

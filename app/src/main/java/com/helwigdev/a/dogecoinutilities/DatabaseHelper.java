@@ -120,7 +120,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		//8-byte (64-bit) values depending on what's necessary. Java's not so flexible - I'm
 		//concerned that the value of the timestamp may be truncated when we get the value back out
 		//of the database, since Java may not be able to handle the 64-bit int
-		//TODO can this be reworked/optimized?
+		//It's been working just fine though so I see no reason to worry at this point
 		int timestamp = cursor.getInt(cursor.getColumnIndex(COLUMN_CONVERSION_RATE_TIMESTAMP));
 		Log.i(TAG, "Got rates: " + rate + " " + timestamp + " with base " + base);
 		cursor.close();
@@ -291,7 +291,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			int time = cursor.getInt(cursor.getColumnIndex(COLUMN_CONVERSION_RATE_TIMESTAMP));//still don't like this
 			long difference;
 			//a little algorithm to find the smallest difference between times
-			//TODO verify this works
 			if(timestamp > time){
 				difference = timestamp - time;
 			} else {

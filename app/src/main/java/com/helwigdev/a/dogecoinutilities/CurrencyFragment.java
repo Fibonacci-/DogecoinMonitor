@@ -212,7 +212,7 @@ public class CurrencyFragment extends Fragment {
 
 		@Override
 		protected String doInBackground(TextView... params) {
-			//TODO check to make sure params[0] is set before using (low priority)
+			if (params[0]==null) return getResources().getString(R.string.error);
 			tv = params[0];
 			String urlToGet;
 			if (tv == tvSatSub2) {

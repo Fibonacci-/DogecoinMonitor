@@ -2,11 +2,13 @@ package com.helwigdev.a.dogecoinutilities;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
@@ -130,12 +132,19 @@ public class MainActivity extends Activity
 		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("firstStart", true)) {
 			PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("firstStart",
 					false).commit();
+
 			//show first start dialog
-			DialogFragment newFragment = FirstAlertDialog.newInstance(
-					R.string.hello);
-			newFragment.show(getFragmentManager(), "dialog");
+			new AlertDialog.Builder(this)
+					.setTitle(getResources().getString(R.string.hello))
+					.setMessage(getResources().getString(R.string.welcome_text))
+					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
 
-
+						}
+					})
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.show();
 		}
 
 		//set up views
@@ -240,12 +249,7 @@ public class MainActivity extends Activity
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		//if the device is on a flat surface, it will not switch back into portrait mode after scanning a qr code
-		//this fixes that issue
-		//TODO investigate if this will force the activity into portrait mode for the remainder of the activity lifecycle
-//		if (rotationBeforeScan == 0) {
-//			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-//		}
+
 		if (resultCode != Activity.RESULT_OK) {
 			return;
 		}
@@ -330,48 +334,6 @@ public class MainActivity extends Activity
 
 		return id == R.id.action_settings || super.onOptionsItemSelected(item);
 
-	}
-
-	/**
-	 * A placeholder fragment containing a simple view.
-	 */
-
-	//TODO we should be able to remove this soon - keep as example fragment for a little more
-	public static class PlaceholderFragment extends Fragment {
-		/**
-		 * The fragment argument representing the section number for this
-		 * fragment.
-		 */
-		private static final String ARG_SECTION_NUMBER = "section_number";
-
-		/**
-		 * Returns a new instance of this fragment for the given section
-		 * number.
-		 */
-		public static PlaceholderFragment newInstance(int sectionNumber) {
-			PlaceholderFragment fragment = new PlaceholderFragment();
-			Bundle args = new Bundle();
-			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-			fragment.setArguments(args);
-			return fragment;
-		}
-
-		public PlaceholderFragment() {
-		}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-								 Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-			return rootView;
-		}
-
-		@Override
-		public void onAttach(Activity activity) {
-			super.onAttach(activity);
-			((MainActivity) activity).onSectionAttached(
-					getArguments().getInt(ARG_SECTION_NUMBER));
-		}
 	}
 
 	//This task verifies that addresses are valid and adds them to the DB

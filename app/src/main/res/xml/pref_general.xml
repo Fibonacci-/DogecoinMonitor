@@ -18,33 +18,31 @@
             android:defaultValue="USD"
             android:entries="@array/supported_currencies"
             android:entryValues="@array/supported_currency_values"
-            android:key="currencyDelim"
+            android:key="local_currency"
             android:title="@string/sCurrencies" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="isOn_polling"
-            android:title="@string/pref_polling"
-            />
-        <ListPreference
-            android:defaultValue="60"
-            android:entries="@array/main_refresh_rates_text"
-            android:entryValues="@array/main_refresh_rates_values"
-            android:key="refreshRate"
-            android:title="@string/sRates" />
+        <!--<CheckBoxPreference-->
+            <!--android:defaultValue="true"-->
+            <!--android:key="isOn_polling"-->
+            <!--android:title="@string/pref_polling"-->
+            <!--/>-->
+        <!--<ListPreference-->
+            <!--android:defaultValue="60"-->
+            <!--android:entries="@array/main_refresh_rates_text"-->
+            <!--android:entryValues="@array/main_refresh_rates_values"-->
+            <!--android:key="refreshRate"-->
+            <!--android:title="@string/sRates" />-->
 
 
 
     </PreferenceCategory>
     <PreferenceCategory android:title="Backup / Restore"
-        android:enabled="false"
-        android:summary="@string/coming_soon">
+        android:enabled="true">
         <Preference
+            android:id="@+id/pref_backup"
             android:key="backup"
-            android:summary="@string/coming_soon"
             android:title="@string/sBackup_to_sd" />
         <Preference
             android:key="restore"
-            android:summary="@string/coming_soon"
             android:title="@string/sRestore" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Donate">

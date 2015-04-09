@@ -242,7 +242,6 @@ public class Utilities {
 	 * @param codeResult The {@link java.lang.String} to check.
 	 * @return The type of code. Types can be found in the Utilities class.
 	 */
-	//TODO change to a better way of checking type
 	public static int checkQRCodeType(String codeResult) {
 		// returns 0 if not recognized,
 		// returns 1 if wallet address,
@@ -388,7 +387,6 @@ public class Utilities {
 			InterruptedException, ExecutionException, TimeoutException {
 		String url = "http://currency-api.appspot.com/api/USD/" + targetCurrency + "" +
 				".json?key=f68092cafdb7838c1b6c362a75b7493f314aece6";
-		//TODO find a better currency API that supports more locales
 		// 1 USD is worth {rate} of target currency
 		JSONObject o = getJsonObject(url);
 		double result = -1;
@@ -401,13 +399,11 @@ public class Utilities {
 
 	/**
 	 * A string of all data the app uses. Should be used to backup all data for a wipe.
-	 * @param c	The {@link android.content.Context} of the calling activity.
+	 * @param walletList	The wallets to format
 	 * @return	A {@link java.lang.String} containing all non-private app data.
-	 * @throws IOException
 	 */
-	public static String backupFormat(Context c) throws IOException{
-		ArrayList<String> poolList = getPoolApiList(c);
-		ArrayList<String> walletList = getWalletAddressList(c);
+	public static String backupFormat( ArrayList<String> walletList){
+		ArrayList<String> poolList = new ArrayList<>();
 		int numPools = poolList.size();
 		int numWallets = walletList.size();
 		String toReturn = "";

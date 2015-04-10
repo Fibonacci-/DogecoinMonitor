@@ -22,6 +22,8 @@ import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
+import de.langerhans.wallet.integration.android.BitcoinIntegration;
+
 /**
  * Created by Tyler on 1/10/2015.
  * Copyright 2015 by Helwig Development
@@ -31,6 +33,7 @@ public class SettingsFragment extends PreferenceFragment {
 	private static final String ARG_SECTION_NUMBER = "section_number";
 	private static final String BACKUP_FILE_NAME = "dogecoin_backup.txt";
 	private static final String TAG = "SettingsFragment";
+	public static final String DONATE_ADDRESS = "DBeTGY7wuEvL17MPddbGNX9FyFkhWGS1pQ";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -113,6 +116,27 @@ public class SettingsFragment extends PreferenceFragment {
 			}
 		});
 
+		Preference donate_ads = findPreference("donateBilling");
+		Preference donate_doge = findPreference("donateDoge");
+
+		donate_ads.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				//TODO start billing for sku
+				return false;
+			}
+		});
+		donate_doge.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				//start intent for doge wallet
+				long oneHundredDoge = 100 * 100000000l;
+				//request was designed for satoshi amounts, so we need to multiply
+				//amount by a lot
+				BitcoinIntegration.request(getActivity(), DONATE_ADDRESS, oneHundredDoge);
+				return false;
+			}
+		});
 
 	}
 

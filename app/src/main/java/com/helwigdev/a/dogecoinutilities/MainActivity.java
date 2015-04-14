@@ -71,6 +71,7 @@ public class MainActivity extends Activity
 	//billing setup
 	IInAppBillingService mService;
 	public static final String SKU_REMOVE_ADS = "donate_remove_ads";
+	public static final String PREF_ADS_REMOVED = "pref_is_ad_removed";
 
 
 	ServiceConnection mServiceConn = new ServiceConnection() {
@@ -103,7 +104,9 @@ public class MainActivity extends Activity
 						String signature = signatureList.get(i);
 						String sku = ownedSkus.get(i);
 						if(sku.equalsIgnoreCase(SKU_REMOVE_ADS)){
-							//TODO disable ads
+							Log.i(TAG, "User has disabled ads");
+							PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
+									.putBoolean(PREF_ADS_REMOVED, true);
 						}
 
 					}

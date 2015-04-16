@@ -58,6 +58,8 @@
         faster and more responsive. \n\nAs always, feel free to email me at helwigdev@gmail.com, and thanks for using my app!</string>
     <string name="pref_polling">Poll for new data in the background</string>
     <string name="coming_soon">Coming soon!</string>
-    <string name="help_url">http://www.helwigdev.com/dogecoinhelp.php</string>
+    <string name="help_url">http://www.helwigdev.com/index.php/78-main/10-dogecoin-monitor-help</string>
+    <string name="thanks_billing">Thanks for donating! You won\'t see any more ads.</string>
+    <string name="thanks">Thanks!</string>
 
 </resources>

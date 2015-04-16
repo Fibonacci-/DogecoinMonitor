@@ -72,6 +72,9 @@ public class MainActivity extends Activity
 	IInAppBillingService mService;
 	public static final String SKU_REMOVE_ADS = "donate_remove_ads";
 	public static final String PREF_ADS_REMOVED = "pref_is_ad_removed";
+	public static final String ADS_ORDER_ID = "order_id";
+	public static final String ADS_PURCHASE_TOKEN = "purchase_token";
+	private boolean areAdsRemoved = false;
 
 
 	ServiceConnection mServiceConn = new ServiceConnection() {
@@ -100,19 +103,21 @@ public class MainActivity extends Activity
 							ownedItems.getString("INAPP_CONTINUATION_TOKEN");
 
 					for (int i = 0; i < purchaseDataList.size(); ++i) {
-						String purchaseData = purchaseDataList.get(i);
-						String signature = signatureList.get(i);
 						String sku = ownedSkus.get(i);
+						Log.i("Billing","SKU: " + sku);
 						if(sku.equalsIgnoreCase(SKU_REMOVE_ADS)){
 							Log.i(TAG, "User has disabled ads");
 							PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit()
 									.putBoolean(PREF_ADS_REMOVED, true);
+							areAdsRemoved = true;
 						}
 
 					}
 
 					// if continuationToken != null, this would be where we check for more purchases
-					//however there is only one available at this point
+					// however there is only one available at this point
+				} else {
+					Log.e("Billing", "Response was " + response);
 				}
 			} catch (RemoteException e) {
 				e.printStackTrace();
@@ -124,7 +129,10 @@ public class MainActivity extends Activity
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);//init preferences, if it hasn't been done yet
-
+		if(!areAdsRemoved){
+			//if it's already true, no need to check again
+			areAdsRemoved = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREF_ADS_REMOVED, false);
+		}
 		//setup billing
 		Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
 		serviceIntent.setPackage("com.android.vending");
@@ -163,20 +171,23 @@ public class MainActivity extends Activity
 				R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout));
 
-		mAdView = (AdView) findViewById(R.id.ad_main);
-		AdRequest adRequest = new AdRequest.Builder()
-				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-				.addTestDevice("827EB1A5D0932A3128F6670540C5EFEC")
-				.addTestDevice("870856BEB78EBA07DB2D4697C70F2369")
-				.build();
-		mAdView.loadAd(adRequest);
-
+		if(!areAdsRemoved) {
+			mAdView = (AdView) findViewById(R.id.ad_main);
+			AdRequest adRequest = new AdRequest.Builder()
+					.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+					.addTestDevice("827EB1A5D0932A3128F6670540C5EFEC")
+					.addTestDevice("870856BEB78EBA07DB2D4697C70F2369")
+					.build();
+			mAdView.loadAd(adRequest);
+		}
 		mFragmentSingleton = FragmentSingleton.get(this);
 	}
 
 	@Override
 	protected void onPause() {
-		mAdView.pause();
+		if(mAdView!=null) {
+			mAdView.pause();
+		}
 		mFragmentSingleton.saveData();
 		super.onPause();
 	}
@@ -184,12 +195,16 @@ public class MainActivity extends Activity
 	@Override
 	protected void onResume() {
 		super.onResume();
-		mAdView.resume();
+		if(!areAdsRemoved && mAdView!=null) {
+			mAdView.resume();
+		}
 	}
 
 	@Override
 	protected void onDestroy() {
-		mAdView.destroy();
+		if(mAdView!=null) {
+			mAdView.destroy();
+		}
 		if (isFinishing()) {
 			mFragmentSingleton.invalidate();
 		}

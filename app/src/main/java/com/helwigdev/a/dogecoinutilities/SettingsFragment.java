@@ -1,9 +1,18 @@
 package com.helwigdev.a.dogecoinutilities;
 
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentSender;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -12,6 +21,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import com.android.vending.billing.IInAppBillingService;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -34,10 +48,27 @@ public class SettingsFragment extends PreferenceFragment {
 	private static final String BACKUP_FILE_NAME = "dogecoin_backup.txt";
 	private static final String TAG = "SettingsFragment";
 	public static final String DONATE_ADDRESS = "DBeTGY7wuEvL17MPddbGNX9FyFkhWGS1pQ";
+	IInAppBillingService mService;
+	ServiceConnection mServiceConn = new ServiceConnection() {
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			mService = null;
+		}
+
+		@Override
+		public void onServiceConnected(ComponentName name,
+									   IBinder service) {
+			mService = IInAppBillingService.Stub.asInterface(service);
+		}
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//set up billing
+		Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
+		serviceIntent.setPackage("com.android.vending");
+		getActivity().bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
 
 		// Load the preferences from an XML resource
 		addPreferencesFromResource(R.xml.pref_general);
@@ -78,10 +109,10 @@ public class SettingsFragment extends PreferenceFragment {
 		pref_restore.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				try{
+				try {
 					File input = new File(Environment.getExternalStorageDirectory(), BACKUP_FILE_NAME);
-					if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-							Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState())){
+					if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+							Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState())) {
 						//can read
 
 						BufferedReader br = new BufferedReader(new FileReader(input));
@@ -99,7 +130,7 @@ public class SettingsFragment extends PreferenceFragment {
 						}
 						br.close();
 						FragmentSingleton fs = FragmentSingleton.get(getActivity());
-						for(String s : walletList){
+						for (String s : walletList) {
 							//since this is from a backup, all wallets should already have been checked against the api
 							//if someone wants to break the app, they can go for it, I'll give them the option
 							fs.addWallet(s);
@@ -108,7 +139,7 @@ public class SettingsFragment extends PreferenceFragment {
 					} else {
 						throw new Exception("Can't read from sdcard: external storage not readable");
 					}
-				} catch (Exception e){
+				} catch (Exception e) {
 					Log.e(TAG, "Could not read backup file: " + e);
 					Toast.makeText(getActivity(), "Could not restore backup!", Toast.LENGTH_SHORT).show();
 					return false;
@@ -119,11 +150,29 @@ public class SettingsFragment extends PreferenceFragment {
 		Preference donate_ads = findPreference("donateBilling");
 		Preference donate_doge = findPreference("donateDoge");
 
+		boolean areAdsRemoved = PreferenceManager.getDefaultSharedPreferences(getActivity())
+				.getBoolean(MainActivity.PREF_ADS_REMOVED, false);
+		donate_ads.setEnabled(!areAdsRemoved);
+		donate_ads.setSummary(getResources().getString(R.string.thanks));
 		donate_ads.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				//TODO start billing for sku
-				return false;
+				//get unique ID for user
+				String serial = Build.SERIAL;
+				try {
+					Bundle buyIntentBundle = mService.getBuyIntent(3, getActivity().getPackageName(),
+							MainActivity.SKU_REMOVE_ADS, "inapp", serial);
+					if (buyIntentBundle.getInt("RESPONSE_CODE") == 0) {
+						Log.i("Billing start", "Got billing intent OK");
+						PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
+						getActivity().startIntentSenderForResult(pendingIntent.getIntentSender(),
+								SettingsActivity.PURCHASE_ADS_REQUEST_CODE, new Intent(), 0, 0, 0);
+					}
+				} catch (RemoteException | IntentSender.SendIntentException e) {
+					e.printStackTrace();
+				}
+				return true;
 			}
 		});
 		donate_doge.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -138,6 +187,15 @@ public class SettingsFragment extends PreferenceFragment {
 			}
 		});
 
+	}
+
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mService != null) {
+			getActivity().unbindService(mServiceConn);
+		}
 	}
 
 

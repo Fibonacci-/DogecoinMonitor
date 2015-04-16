@@ -67,9 +67,9 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 		//setup views etc
 		View v = inflater.inflate(R.layout.fragment_wallet, container, false);
 
-		CardView cvTotalDoge = (CardView) v.findViewById(R.id.card_view_wallet_total_doge);
-		CardView cvTotalFiat = (CardView) v.findViewById(R.id.card_view_wallet_total_fiat);
-		CardView cvTotalBtc = (CardView) v.findViewById(R.id.card_view_wallet_total_btc);
+//		CardView cvTotalDoge = (CardView) v.findViewById(R.id.card_view_wallet_total_doge);
+//		CardView cvTotalFiat = (CardView) v.findViewById(R.id.card_view_wallet_total_fiat);
+//		CardView cvTotalBtc = (CardView) v.findViewById(R.id.card_view_wallet_total_btc);
 //
 //		cvTotalDoge.setOnClickListener(new View.OnClickListener() {
 //			@Override
@@ -273,10 +273,10 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 	}
 
 	public String getStringFromUrl(String url) {
-		HttpURLConnection connection = null;
-		String toReturn = null;
+		HttpURLConnection connection;
+		String toReturn;
 		try {
-			//TODO got some redundant network lookup code. consolidate WDG, etc
+			//TODO got some redundant network lookup code.
 			connection = (HttpURLConnection) new URL(url).openConnection();
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -286,7 +286,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 				return null;
 			}
 			InputStream in = connection.getInputStream();
-			int bytesRead = 0;
+			int bytesRead;
 			byte[] buffer = new byte[1024];
 			while ((bytesRead = in.read(buffer)) > 0) {
 				out.write(buffer, 0, bytesRead);
@@ -526,7 +526,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 						return null;
 					}
 					InputStream in = connection.getInputStream();
-					int bytesRead = 0;
+					int bytesRead;
 					byte[] buffer = new byte[1024];
 					while ((bytesRead = in.read(buffer)) > 0) {
 						out.write(buffer, 0, bytesRead);

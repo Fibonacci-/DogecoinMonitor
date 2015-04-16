@@ -157,7 +157,6 @@ public class SettingsFragment extends PreferenceFragment {
 		donate_ads.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				//TODO start billing for sku
 				//get unique ID for user
 				String serial = Build.SERIAL;
 				try {

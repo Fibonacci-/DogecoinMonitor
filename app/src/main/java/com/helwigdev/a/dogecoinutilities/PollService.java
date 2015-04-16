@@ -20,7 +20,7 @@ public class PollService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		Log.i(TAG,"Got intent!");
-		//TODO poll for all wallet amounts, conversion rates, and sat rates
+		//TODO poll for all wallet amounts, conversion rates, and sat rates when graphs are implemented
 		//check for network
 		//include legacy network check
 		ConnectivityManager cm = (ConnectivityManager)

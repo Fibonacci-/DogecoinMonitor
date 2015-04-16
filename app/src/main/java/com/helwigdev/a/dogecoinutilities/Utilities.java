@@ -261,141 +261,28 @@ public class Utilities {
 		}
 	}
 
-	/**
-	 * Gets a JSON object from a given URL
-	 *
-	 * @param url The {@link java.lang.String} URL to get (the URL must return a JSON-parseable
-	 *            response)
-	 * @return The JSON object
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
-	 */
-	protected static JSONObject getJsonObject(String url) throws InterruptedException,
-			ExecutionException, TimeoutException {
 
-		JsonGet j = new JsonGet(url, JsonGet.JSON_TYPE_OBJECT);
-		FutureTask<Object> ft = new FutureTask<>(j);
-		ExecutorService eservice = Executors.newFixedThreadPool(1);
-		eservice.execute(ft);
-		return (JSONObject) ft.get(60, TimeUnit.SECONDS);
-	}
+//
+//	/**
+//	 * Gets the current pool hashrate of a given pool. Must supply API key
+//	 *
+//	 * @param poolUrl    The first portion of the URL given by the pool QR
+//	 * @param poolAPIKey The API key given by the pool QR
+//	 * @return The pool hashrate
+//	 * @throws JSONException
+//	 * @throws InterruptedException
+//	 * @throws ExecutionException
+//	 * @throws TimeoutException
+//	 */
+//	public static double getPoolHashrate(String poolUrl,
+//										 String poolAPIKey) throws JSONException,
+//			InterruptedException, ExecutionException, TimeoutException {
+//		String urlToRequest = poolUrl + "&action=getpoolhashrate&api_key=" + poolAPIKey;
+//		JSONObject o = getJsonObject(urlToRequest);
+//
+//		return o.getJSONObject("getpoolhashrate").getDouble("data");
+//	}
 
-	/**
-	 * Gets a JSON array from a given URL
-	 *
-	 * @param url The {@link java.lang.String} URL to get (the URL must return a JSON-parseable
-	 *            response)
-	 * @return The JSON array
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
-	 */
-	protected static JSONArray getJsonArray(String url) throws InterruptedException,
-			ExecutionException, TimeoutException {
-
-		JsonGet j = new JsonGet(url, JsonGet.JSON_TYPE_ARRAY);
-		FutureTask<Object> ft = new FutureTask<>(j);
-		ExecutorService eservice = Executors.newFixedThreadPool(1);
-		eservice.execute(ft);
-		return (JSONArray) ft.get(60, TimeUnit.SECONDS);
-	}
-
-
-
-	/**
-	 * Gets a wallet balance from dogechain.info
-	 *
-	 * @param address The address to get the balance from.
-	 * @return The balance of the wallet
-	 * @throws InterruptedException Thrown if the network thread is closed before the data is
-	 *                              fully loaded
-	 * @throws ExecutionException
-	 * @throws TimeoutException     Thrown if the network was too slow to respond to the request
-	 *                              in time
-	 */
-	public static double getWalletBalance(String address) throws InterruptedException,
-			ExecutionException, TimeoutException {
-		Log.d("getWalletBalance", "Getting wallet balance from " + address);
-		String url = "http://dogechain.info/chain/Dogecoin/q/addressbalance/" + address;
-		WebDataGet wdg = new WebDataGet(url);
-		FutureTask<String> ft = new FutureTask<>(wdg);
-		ExecutorService eservice = Executors.newFixedThreadPool(1);
-		eservice.execute(ft);
-		double result;
-
-		Log.d("getWalletBalance", "Waiting for server response...");
-		String stringResult = ft.get(1, TimeUnit.MINUTES);
-		Log.d("getWalletBalance", "Server response is " + stringResult);
-		result = Double.parseDouble(stringResult);
-
-
-		Log.d("getWalletBalance", "Got wallet balance");
-		return result;
-	}
-
-	/**
-	 * Gets the current pool hashrate of a given pool. Must supply API key
-	 *
-	 * @param poolUrl    The first portion of the URL given by the pool QR
-	 * @param poolAPIKey The API key given by the pool QR
-	 * @return The pool hashrate
-	 * @throws JSONException
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
-	 */
-	public static double getPoolHashrate(String poolUrl,
-										 String poolAPIKey) throws JSONException,
-			InterruptedException, ExecutionException, TimeoutException {
-		String urlToRequest = poolUrl + "&action=getpoolhashrate&api_key=" + poolAPIKey;
-		JSONObject o = getJsonObject(urlToRequest);
-
-		return o.getJSONObject("getpoolhashrate").getDouble("data");
-	}
-
-	/**
-	 * Gets the current price of 1&ETH; in the given price base. Docs are at https://block
-	 * .io/api/simple/curl
-	 *
-	 * @param price_base The currency with which to compare Doge against
-	 * @return An {@link java.util.ArrayList} of {@link org.json.JSONObject}s containing details
-	 * on the current price of Doge.
-	 * @throws JSONException
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
-	 */
-	public static ArrayList<JSONObject> getDogePrice(String price_base) throws JSONException,
-			InterruptedException, ExecutionException, TimeoutException {
-		String url = "https://block.io/api/v1/get_current_price/?api_key=6411-6b24-8a06-218e" +
-				"&price_base=" + price_base;
-		Log.d("DOGE",url);
-		JSONObject o = getJsonObject(url);
-		ArrayList<JSONObject> results = new ArrayList<>();
-
-		JSONArray array = o.getJSONObject("data").getJSONArray("prices");
-		for (int i = 0; i < array.length(); i++) {
-			results.add(array.getJSONObject(i));
-		}
-
-		return results;
-	}
-
-
-	public static double convertFromUSD(String targetCurrency) throws JSONException,
-			InterruptedException, ExecutionException, TimeoutException {
-		String url = "http://currency-api.appspot.com/api/USD/" + targetCurrency + "" +
-				".json?key=f68092cafdb7838c1b6c362a75b7493f314aece6";
-		// 1 USD is worth {rate} of target currency
-		JSONObject o = getJsonObject(url);
-		double result = -1;
-
-		result = o.getDouble("rate");
-		Log.d("conversion", "Exchange rate from USD to " + targetCurrency + " is " + result);
-
-		return result;
-	}
 
 	/**
 	 * A string of all data the app uses. Should be used to backup all data for a wipe.

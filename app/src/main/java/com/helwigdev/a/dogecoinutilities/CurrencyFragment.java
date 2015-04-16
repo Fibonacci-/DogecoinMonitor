@@ -30,8 +30,6 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by Tyler on 2/19/2015.
@@ -54,7 +52,7 @@ public class CurrencyFragment extends Fragment {
 
 	private boolean isLaunching;
 
-	ProgressDialog progress;
+//	ProgressDialog progress;
 
 	private Menu mMenu;
 
@@ -75,7 +73,7 @@ public class CurrencyFragment extends Fragment {
 							 Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_currency, container, false);
 
-		CardView cvSat = (CardView) v.findViewById(R.id.card_view_sat);
+//		CardView cvSat = (CardView) v.findViewById(R.id.card_view_sat);
 //		cvSat.setOnClickListener(new View.OnClickListener() {
 //			@Override
 //			public void onClick(View v) {
@@ -320,7 +318,7 @@ public class CurrencyFragment extends Fragment {
 					return null;
 				}
 
-				int bytesRead = 0;
+				int bytesRead;
 				byte[] buffer = new byte[1024];
 				while ((bytesRead = in.read(buffer)) > 0) {
 					out.write(buffer, 0, bytesRead);//read data stream

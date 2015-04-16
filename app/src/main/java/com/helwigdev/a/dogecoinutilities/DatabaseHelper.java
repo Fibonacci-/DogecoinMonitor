@@ -9,7 +9,6 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Tyler on 3/23/2015.
@@ -268,9 +267,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	public double getRateNearTime(String base, long timestamp) {
 		Log.i(TAG, "Looking for " + base + " value near " + timestamp);
-		long range = 43200000;//12 hours on either side
-		long lower = timestamp - range;
-		long higher = timestamp + range;
 		Cursor cursor = getReadableDatabase().query(TABLE_CONVERSION_RATE,
 				null,
 				COLUMN_CONVERSION_RATE_BASE_CURRENCY + " = ?",

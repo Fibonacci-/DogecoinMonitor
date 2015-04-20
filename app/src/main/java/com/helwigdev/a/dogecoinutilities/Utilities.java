@@ -320,12 +320,12 @@ public class Utilities {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(backup));
 			int numPools = Integer.parseInt(br.readLine());
-			ArrayList<String> poolList = new ArrayList<String>();
+			ArrayList<String> poolList = new ArrayList<>();
 			for (int i = 0; i < numPools; i++) {
 				poolList.add(br.readLine());
 			}
 			int numWallets = Integer.parseInt(br.readLine());
-			ArrayList<String> walletList = new ArrayList<String>();
+			ArrayList<String> walletList = new ArrayList<>();
 			for (int i = 0; i < numWallets; i++) {
 				walletList.add(br.readLine());
 			}

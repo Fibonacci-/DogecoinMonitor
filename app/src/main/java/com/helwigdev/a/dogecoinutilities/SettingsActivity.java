@@ -40,11 +40,9 @@ public class SettingsActivity extends PreferenceActivity {
 			return;
 		}
 		if (requestCode == PURCHASE_ADS_REQUEST_CODE) {
-			int responseCode = data.getIntExtra("RESPONSE_CODE", 0);
 			String purchaseData = data.getStringExtra("INAPP_PURCHASE_DATA");
-			String dataSignature = data.getStringExtra("INAPP_DATA_SIGNATURE");
 
-			JSONObject jo = null;
+			JSONObject jo;
 			try {
 				jo = new JSONObject(purchaseData);
 				String sku = jo.getString("productId");

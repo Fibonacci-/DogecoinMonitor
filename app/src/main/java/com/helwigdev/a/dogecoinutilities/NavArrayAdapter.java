@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 /**
  * Created by Tyler on 1/11/2015.
+ * Copyright 2015 by Helwig Development
  */
 public class NavArrayAdapter extends ArrayAdapter<String> {
 	public NavArrayAdapter(Context context, int resource, int textViewResourceId,

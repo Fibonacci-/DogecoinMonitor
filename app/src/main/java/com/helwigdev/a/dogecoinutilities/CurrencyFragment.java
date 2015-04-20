@@ -48,7 +48,6 @@ public class CurrencyFragment extends Fragment {
 	private TextView tvFiatTitle;
 	private TextView tvFiatSub1;
 	private TextView tvFiatSub2;
-	private FragmentSingleton mFragmentSingleton;
 
 	private boolean isLaunching;
 
@@ -64,7 +63,7 @@ public class CurrencyFragment extends Fragment {
 		//if first launch of fragment
 		isLaunching = savedInstanceState != null;
 		isLaunching = !isLaunching;
-		mFragmentSingleton = FragmentSingleton.get(getActivity());
+
 	}
 
 	@Nullable

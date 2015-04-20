@@ -119,12 +119,12 @@ public class SettingsFragment extends PreferenceFragment {
 						//pool things are legacy - I'm putting them in now (4/9/15) in case we have
 						//to re-implement pools at a later date
 						int numPools = Integer.parseInt(br.readLine());//will always be 0
-						ArrayList<String> poolList = new ArrayList<String>();
+						ArrayList<String> poolList = new ArrayList<>();
 						for (int i = 0; i < numPools; i++) {
 							poolList.add(br.readLine());
 						}
 						int numWallets = Integer.parseInt(br.readLine());
-						ArrayList<String> walletList = new ArrayList<String>();
+						ArrayList<String> walletList = new ArrayList<>();
 						for (int i = 0; i < numWallets; i++) {
 							walletList.add(br.readLine());
 						}
@@ -135,6 +135,7 @@ public class SettingsFragment extends PreferenceFragment {
 							//if someone wants to break the app, they can go for it, I'll give them the option
 							fs.addWallet(s);
 						}
+						Toast.makeText(getActivity(), "All set! Restored " + walletList.size() + " wallets", Toast.LENGTH_SHORT).show();
 						return true;
 					} else {
 						throw new Exception("Can't read from sdcard: external storage not readable");
@@ -153,26 +154,34 @@ public class SettingsFragment extends PreferenceFragment {
 		boolean areAdsRemoved = PreferenceManager.getDefaultSharedPreferences(getActivity())
 				.getBoolean(MainActivity.PREF_ADS_REMOVED, false);
 		donate_ads.setEnabled(!areAdsRemoved);
-		donate_ads.setSummary(getResources().getString(R.string.thanks));
+		if(areAdsRemoved) {
+			donate_ads.setSummary(getResources().getString(R.string.thanks));
+		}
 		donate_ads.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				//get unique ID for user
 				String serial = Build.SERIAL;
-				try {
-					Bundle buyIntentBundle = mService.getBuyIntent(3, getActivity().getPackageName(),
-							MainActivity.SKU_REMOVE_ADS, "inapp", serial);
-					if (buyIntentBundle.getInt("RESPONSE_CODE") == 0) {
-						Log.i("Billing start", "Got billing intent OK");
-						PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
-						getActivity().startIntentSenderForResult(pendingIntent.getIntentSender(),
-								SettingsActivity.PURCHASE_ADS_REQUEST_CODE, new Intent(), 0, 0, 0);
+				if (mService != null) {
+					try {
+						Bundle buyIntentBundle = mService.getBuyIntent(3, getActivity().getPackageName(),
+								MainActivity.SKU_REMOVE_ADS, "inapp", serial);
+						if (buyIntentBundle.getInt("RESPONSE_CODE") == 0) {
+							Log.i("Billing start", "Got billing intent OK");
+							PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
+							getActivity().startIntentSenderForResult(pendingIntent.getIntentSender(),
+									SettingsActivity.PURCHASE_ADS_REQUEST_CODE, new Intent(), 0, 0, 0);
+						}
+					} catch (RemoteException | IntentSender.SendIntentException e) {
+						e.printStackTrace();
 					}
-				} catch (RemoteException | IntentSender.SendIntentException e) {
-					e.printStackTrace();
+					return true;
+				} else {
+					Toast.makeText(getActivity(), "Could not initialize billing service. :-(", Toast.LENGTH_SHORT).show();
+					return false;
 				}
-				return true;
 			}
+
 		});
 		donate_doge.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override

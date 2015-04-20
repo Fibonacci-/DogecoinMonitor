@@ -66,8 +66,6 @@ public class MainActivity extends Activity
 	AdView mAdView;
 	static FragmentSingleton mFragmentSingleton;
 
-	private int rotationBeforeScan = Surface.ROTATION_0;
-
 	//billing setup
 	IInAppBillingService mService;
 	public static final String SKU_REMOVE_ADS = "donate_remove_ads";
@@ -97,10 +95,10 @@ public class MainActivity extends Activity
 							ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
 					ArrayList<String> purchaseDataList =
 							ownedItems.getStringArrayList("INAPP_PURCHASE_DATA_LIST");
-					ArrayList<String> signatureList =
-							ownedItems.getStringArrayList("INAPP_DATA_SIGNATURE");
-					String continuationToken =
-							ownedItems.getString("INAPP_CONTINUATION_TOKEN");
+//					ArrayList<String> signatureList =
+//							ownedItems.getStringArrayList("INAPP_DATA_SIGNATURE");
+//					String continuationToken =
+//							ownedItems.getString("INAPP_CONTINUATION_TOKEN");
 
 					for (int i = 0; i < purchaseDataList.size(); ++i) {
 						String sku = ownedSkus.get(i);
@@ -154,7 +152,7 @@ public class MainActivity extends Activity
 
 						}
 					})
-					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setIcon(android.R.drawable.ic_menu_info_details)
 					.show();
 		}
 
@@ -170,15 +168,17 @@ public class MainActivity extends Activity
 		mNavigationDrawerFragment.setUp(
 				R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout));
-
+		mAdView = (AdView) findViewById(R.id.ad_main);
 		if(!areAdsRemoved) {
-			mAdView = (AdView) findViewById(R.id.ad_main);
+
 			AdRequest adRequest = new AdRequest.Builder()
 					.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
 					.addTestDevice("827EB1A5D0932A3128F6670540C5EFEC")
 					.addTestDevice("870856BEB78EBA07DB2D4697C70F2369")
 					.build();
 			mAdView.loadAd(adRequest);
+		} else {
+			mAdView.setVisibility(View.GONE);
 		}
 		mFragmentSingleton = FragmentSingleton.get(this);
 	}
@@ -243,8 +243,6 @@ public class MainActivity extends Activity
 				onNavigationDrawerItemSelected(positionBeforeScan);
 				onSectionAttached(positionBeforeScan + 1);
 				mNavigationDrawerFragment.setItemPosition(positionBeforeScan);
-
-				rotationBeforeScan = getWindowManager().getDefaultDisplay().getRotation();
 
 				//scan new QR and handle result
 				IntentIntegrator integrator = new IntentIntegrator(this);

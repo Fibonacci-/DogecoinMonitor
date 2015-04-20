@@ -18,7 +18,6 @@ public class FragmentSingleton {
 
 	private CurrencyFragment mCurrencyFragment;
 	private WalletFragment mWalletFragment;
-	private SettingsFragment mSettingsFragment;
 	private DatabaseHelper mHelper;
 
 	private ArrayList<String> mPoolList;
@@ -107,31 +106,23 @@ public class FragmentSingleton {
 	}
 
 	public CurrencyFragment getCurrencyFragment() {
-		if (mCurrencyFragment == null) {
+
 			mCurrencyFragment = CurrencyFragment.newInstance(CURRENCY_FRAGMENT_POSITION + 1);
-		}
+
 		return mCurrencyFragment;
 	}
 
 	public WalletFragment getWalletFragment() {
-		if (mWalletFragment == null) {
-			mWalletFragment = WalletFragment.newInstance(WALLET_FRAGMENT_POSITION + 1);
-		}
-		return mWalletFragment;
-	}
 
-	public SettingsFragment getSettingsFragment() {
-		if (mSettingsFragment == null) {
-			mSettingsFragment = SettingsFragment.newInstance(SETTINGS_FRAGMENT_POSITION + 1);
-		}
-		return mSettingsFragment;
+			mWalletFragment = WalletFragment.newInstance(WALLET_FRAGMENT_POSITION + 1);
+
+		return mWalletFragment;
 	}
 
 	public void invalidate() {
 		Log.i("FragmentSingleton", "Invalidating all fragments");
 		mCurrencyFragment = null;
 		mWalletFragment = null;
-		mSettingsFragment = null;
 
 
 	}

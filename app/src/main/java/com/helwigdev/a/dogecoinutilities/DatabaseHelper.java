@@ -15,7 +15,7 @@ import java.util.Date;
  * All code herein copyright Helwig Development 3/23/2015
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
-	public static final String TAG = "DatabaseHelper";
+	private static final String TAG = "DatabaseHelper";
 
 	private static final String DB_NAME = "data.sqlite";
 	private static final int VERSION = 1;

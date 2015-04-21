@@ -1,8 +1,10 @@
 package com.helwigdev.a.dogecoinutilities;
 
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
@@ -16,10 +18,15 @@ import android.os.RemoteException;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.vending.billing.IInAppBillingService;
@@ -150,6 +157,7 @@ public class SettingsFragment extends PreferenceFragment {
 
 		Preference donate_ads = findPreference("donateBilling");
 		Preference donate_doge = findPreference("donateDoge");
+		Preference attributions = findPreference("attributions");
 
 		boolean areAdsRemoved = PreferenceManager.getDefaultSharedPreferences(getActivity())
 				.getBoolean(MainActivity.PREF_ADS_REMOVED, false);
@@ -187,7 +195,7 @@ public class SettingsFragment extends PreferenceFragment {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				//start intent for doge wallet
-				long oneHundredDoge = 100 * 100000000l;
+				long oneHundredDoge = 100 * 100000000l;//last digit is actually an L
 				//request was designed for satoshi amounts, so we need to multiply
 				//amount by a lot
 				BitcoinIntegration.request(getActivity(), DONATE_ADDRESS, oneHundredDoge);
@@ -195,6 +203,33 @@ public class SettingsFragment extends PreferenceFragment {
 			}
 		});
 
+		attributions.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+
+				final TextView message = new TextView(getActivity());
+				final SpannableString s =
+						new SpannableString(getResources().getText(R.string.attributions));
+				Linkify.addLinks(s, Linkify.ALL);
+				message.setText(s);
+				message.setMovementMethod(LinkMovementMethod.getInstance());
+
+
+				AlertDialog d = new AlertDialog.Builder(getActivity())
+						.setTitle(getResources().getString(R.string.title_attributions))
+						.setView(message)
+						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+
+							}
+						})
+						.setIcon(android.R.drawable.ic_menu_info_details)
+						.show();
+				((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+				return true;
+			}
+		});
 	}
 
 

@@ -86,7 +86,7 @@ public class MainActivity extends Activity
 									   IBinder service) {
 			mService = IInAppBillingService.Stub.asInterface(service);
 			try {
-				Log.e(TAG, "Getting purchase list");
+				Log.i(TAG, "Getting purchase list");
 				Bundle ownedItems = mService.getPurchases(3, getPackageName(), "inapp", null);
 				int response = ownedItems.getInt("RESPONSE_CODE");
 

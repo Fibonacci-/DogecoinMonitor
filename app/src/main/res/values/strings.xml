@@ -61,5 +61,11 @@
     <string name="help_url">http://www.helwigdev.com/index.php/78-main/10-dogecoin-monitor-help</string>
     <string name="thanks_billing">Thanks for donating! You won\'t see any more ads.</string>
     <string name="thanks">Thanks!</string>
+    <string name="title_attributions">Attributions</string>
+    <string name="attributions">This app uses code from the following sources:\n\n
+        <a href='https://github.com/langerhans/dogecoin-wallet-new'>Dogecoin Wallet</a> for payment integration\n\n
+        <a href='https://github.com/zxing/zxing'>Zebra Crossing project</a> for QR code reading\n\n
+        <a href='https://github.com/Androguide/HoloGraphLibrary'>HoloGraphLibrary</a> for graphing engine
+        </string>
 
 </resources>

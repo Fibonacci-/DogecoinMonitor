@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -226,6 +225,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 	public void onGetAddressBalance(String address, String balance) {
 		//called when asynctask for balances completes
 		//updates UI with formatted info and starts the next task
+		if(!isAdded()) return;
 		try {
 			float fBalance = Float.parseFloat(balance);//if the balance string cannot be parsed the code will exit here
 			mFragmentSingleton.addAmount(address, fBalance);
@@ -302,6 +302,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 	@Override
 	public void onGetBFBalance(Double[] balances) {//onGetBtcFiatBalance
 		/* Create a new row to be added. */
+		if(!isAdded()) return;
 		if (balances != null) {
 			//similar to above UI update method - but this time, we're updating a table in two
 			// CardViews instead of one, so it'll look a bit messier

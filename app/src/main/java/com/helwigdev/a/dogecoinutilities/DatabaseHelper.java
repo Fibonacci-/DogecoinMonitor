@@ -127,6 +127,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	public ArrayList<Object[]> getBaseValues(String base){
+		//returns {double(rate), long(timestamp)}
 
 		ArrayList<Object[]> toReturn = new ArrayList<>();
 		Cursor cursor = getReadableDatabase().query(TABLE_CONVERSION_RATE,

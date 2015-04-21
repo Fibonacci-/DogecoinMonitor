@@ -4,12 +4,9 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -18,28 +15,21 @@ import android.os.RemoteException;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.vending.billing.IInAppBillingService;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
@@ -162,7 +152,7 @@ public class SettingsFragment extends PreferenceFragment {
 		boolean areAdsRemoved = PreferenceManager.getDefaultSharedPreferences(getActivity())
 				.getBoolean(MainActivity.PREF_ADS_REMOVED, false);
 		donate_ads.setEnabled(!areAdsRemoved);
-		if(areAdsRemoved) {
+		if (areAdsRemoved) {
 			donate_ads.setSummary(getResources().getString(R.string.thanks));
 		}
 		donate_ads.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -217,16 +207,15 @@ public class SettingsFragment extends PreferenceFragment {
 
 				AlertDialog d = new AlertDialog.Builder(getActivity())
 						.setTitle(getResources().getString(R.string.title_attributions))
-						.setView(message)
-						.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-
-							}
-						})
+								//can't use string resource for the following because when the system grabs the string
+								//from the XML file it erases all HTML formatting, removing the links.
+						.setMessage(Html.fromHtml("This app uses unmodified code from the following sources:<br>" +
+								"<a href='https://github.com/langerhans/dogecoin-wallet-new'>Dogecoin Wallet</a> for payment integration, last updated 4/21/2015<br>" +
+								"<a href='https://github.com/zxing/zxing'>Zebra Crossing project</a> for QR code reading, updated through maven on each build<br>" +
+								"<a href='https://github.com/Androguide/HoloGraphLibrary'>HoloGraphLibrary</a> for graphing engine, last updated 4/21/2015"))
 						.setIcon(android.R.drawable.ic_menu_info_details)
 						.show();
-				((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+				((TextView) d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
 				return true;
 			}
 		});

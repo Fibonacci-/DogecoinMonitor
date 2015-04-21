@@ -1,13 +1,7 @@
 package com.helwigdev.a.dogecoinutilities;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.os.Bundle;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by Tyler on 4/1/2015.

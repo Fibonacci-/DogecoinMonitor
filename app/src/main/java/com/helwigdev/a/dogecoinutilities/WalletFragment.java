@@ -274,25 +274,37 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 	public String getStringFromUrl(String url) {
 		HttpURLConnection connection;
-		String toReturn;
+		String toReturn = "";
 		try {
 			//TODO got some redundant network lookup code.
 			connection = (HttpURLConnection) new URL(url).openConnection();
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-				Log.e("TAG", "Error getting data from url: " + connection
+				Log.e("TAG", "Error getting data from url" + url + ": " + connection
 						.getResponseMessage() + " : " + connection.getResponseCode());
-				return null;
-			}
-			InputStream in = connection.getInputStream();
-			int bytesRead;
-			byte[] buffer = new byte[1024];
-			while ((bytesRead = in.read(buffer)) > 0) {
-				out.write(buffer, 0, bytesRead);
-			}
-			out.close();
-			toReturn = out.toString();
+                if(connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND){
+                    InputStream in = connection.getErrorStream();
+                    int bytesRead;
+                    byte[] buffer = new byte[1024];
+                    while ((bytesRead = in.read(buffer)) > 0) {
+                        out.write(buffer, 0, bytesRead);
+                    }
+                    out.close();
+                    toReturn = out.toString();
+                }
+
+			} else {
+                InputStream in = connection.getInputStream();
+                int bytesRead;
+                byte[] buffer = new byte[1024];
+                while ((bytesRead = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, bytesRead);
+                }
+                out.close();
+                toReturn = out.toString();
+            }
+
 		} catch (Exception e) {
 			return null;
 		}
@@ -373,7 +385,69 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 			mTotalFiatTable.addView(vv);
 
 
-		}
+		} else {
+            //add error message
+            TableRow trBtc = new TableRow(getActivity());
+            trBtc.setLayoutParams(new TableRow.LayoutParams(
+                    TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
+            TableRow trFiat = new TableRow(getActivity());
+            trFiat.setLayoutParams(new TableRow.LayoutParams(
+                    TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
+
+            TextView tvBtc = new TextView(getActivity());
+            tvBtc.setText("No recent trades found");
+            TextView tvFiat = new TextView(getActivity());
+            tvFiat.setText("No recent trades found");
+
+            tvBtc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+            tvFiat.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+
+            //is it possible to use just v instead of v and vv?
+            //nope, gotta duplicate, views can't have more than one parent.
+            //we know that now
+            trBtc.addView(tvBtc);
+            View v = new View(getActivity());
+            v.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 1));
+            v.setBackgroundColor(getResources().getColor(R.color.amber_700_color));
+
+            trFiat.addView(tvFiat);
+            View vv = new View(getActivity());
+            vv.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 1));
+            vv.setBackgroundColor(getResources().getColor(R.color.amber_700_color));
+
+            TextView tvFiatHeader = (TextView) getActivity().findViewById(R.id
+                    .tv_wallet_total_fiat_header);
+
+            TextView tvBtcHeader = (TextView) getActivity().findViewById(R.id
+                    .tv_wallet_total_btc_header);
+            TextView tvBtcSub = (TextView) getActivity().findViewById(R.id
+                    .tv_wallet_total_btc_sub);
+            TextView tvFiatSub = (TextView) getActivity().findViewById(R.id
+                    .tv_wallet_total_fiat_sub);
+
+            String localCurrency = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
+            tvFiatHeader.setText(String.format(getResources().getString(R.string
+                    .wallet_total_fiat), localCurrency));
+
+            tvBtcHeader.setText(getResources().getString(R.string.wallet_total_btc));
+
+            String btcNumFormat = String.format("%.8f", totalBtc);
+            String fiatNumFormat = String.format("%.2f", totalFiat);
+
+            tvBtcSub.setText(String.format(getResources().getString(R.string
+                    .wallet_total_btc_sub_format), btcNumFormat));
+            tvFiatSub.setText(String.format(getResources().getString(R.string
+                    .wallet_total_fiat_sub_format), fiatNumFormat, localCurrency));
+
+            mTotalBtcTable.addView(trBtc);
+            mTotalBtcTable.addView(v);
+
+            mTotalFiatTable.addView(trFiat);
+            mTotalFiatTable.addView(vv);
+        }
 
 	}
 
@@ -402,7 +476,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 				double twoMinutesInMillis = 120000;
 
-				if(Double.parseDouble(s) == 0){//no need to look up how much 0 doge is worth
+				if(s == null || Double.parseDouble(s) == 0){//no need to look up how much 0 or null doge is worth
 					Log.d(TAG, "Found a 0 for conversion");
 					return new Double[]{0d,0d};
 				}
@@ -445,6 +519,11 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 					JSONObject btcData = btcObject.getJSONObject("data");
 					JSONObject fiatData = fiatObject.getJSONObject("data");
+
+                    if(btcData.has("error_message") || fiatData.has("error_message")){
+                        return null;
+                    }
+
 
 					JSONArray btcArray = btcData.getJSONArray("prices");
 					JSONArray fiatArray = fiatData.getJSONArray("prices");

@@ -236,6 +236,9 @@ public class Utilities {
 		// returns 1 if wallet address,
 		// returns 2 if pool API key
 		//
+		byte[] array = Base58.decode(codeResult);
+
+
 		/**if (codeResult.substring(0, 1).equals("|")) {//no more pools :(
 			return QR_TYPE_POOL_API_KEY;
 		} else*/ if (codeResult.length() > 9 && codeResult.substring(0, 9).equals("dogecoin:")) {
@@ -245,6 +248,10 @@ public class Utilities {
 			return QR_TYPE_WALLET_ADDRESS;
 		} else if (codeResult.substring(0, 1).equals("[")) {
 			return QR_TYPE_JSON_ADDRESSES;
+		} else if(array[0] == 30 || array[0] == 22) {//why, block.io, why
+			//should also do a double sha265 hash on all but the last 4 bytes of the array
+			//but that's more expensive than I'd like - we can use the network to validate it further
+			return QR_TYPE_WALLET_ADDRESS;
 		} else {
 			return QR_TYPE_UNKNOWN;
 		}

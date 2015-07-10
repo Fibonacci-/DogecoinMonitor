@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
@@ -264,9 +265,11 @@ public class CurrencyFragment extends Fragment {
 				return getResources().getString(R.string.no_network);
 			} catch (Exception e) {
 				e.printStackTrace();
-				return getResources().getString(R.string.error);
+				if(isAdded()) {
+					return getResources().getString(R.string.error);
+				}
 			}
-
+			return null;
 		}
 
 
@@ -308,9 +311,9 @@ public class CurrencyFragment extends Fragment {
 		byte[] getUrlBytes(String urlSpec) throws IOException {
 			URL url = new URL(urlSpec);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();//can cast - will never be not a HttpURLConnection
-
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
 			try {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
+
 				InputStream in = connection.getInputStream();
 				if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {//some network issue
 					Log.e(CurrencyFragment.TAG, connection.getResponseMessage() + " : " + connection
@@ -325,7 +328,17 @@ public class CurrencyFragment extends Fragment {
 				}
 				out.close();
 				return out.toByteArray();
-			} finally {
+			} catch (FileNotFoundException e) {
+                //connection 404'd
+                InputStream in = connection.getErrorStream();
+                int bytesRead;
+                byte[] buffer = new byte[1024];
+                while ((bytesRead = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, bytesRead);//read data stream
+                }
+                out.close();
+                return out.toByteArray();
+            } finally {
 				connection.disconnect();
 			}
 		}

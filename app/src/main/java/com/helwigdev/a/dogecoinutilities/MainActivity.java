@@ -169,6 +169,7 @@ public class MainActivity extends Activity
 					.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
 					.addTestDevice("827EB1A5D0932A3128F6670540C5EFEC")
 					.addTestDevice("870856BEB78EBA07DB2D4697C70F2369")
+                    .addTestDevice("9C936F4E1202A369D7F6C7E028743D06")
 					.build();
 			mAdView.loadAd(adRequest);
 		} else {

@@ -20,6 +20,11 @@
             android:entryValues="@array/supported_currency_values"
             android:key="local_currency"
             android:title="@string/sCurrencies" />
+        <Preference
+            android:id="@+id/pref_add_by_text"
+            android:key="add_text_wallet"
+            android:title="@string/pref_add_wallet_text"
+            />
         <!--<CheckBoxPreference-->
             <!--android:defaultValue="true"-->
             <!--android:key="isOn_polling"-->

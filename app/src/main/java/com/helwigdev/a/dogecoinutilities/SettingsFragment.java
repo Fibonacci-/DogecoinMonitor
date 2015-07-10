@@ -4,9 +4,11 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,17 +22,25 @@ import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.vending.billing.IInAppBillingService;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 import de.langerhans.wallet.integration.android.BitcoinIntegration;
@@ -46,6 +56,7 @@ public class SettingsFragment extends PreferenceFragment {
 	private static final String TAG = "SettingsFragment";
 	public static final String DONATE_ADDRESS = "DBeTGY7wuEvL17MPddbGNX9FyFkhWGS1pQ";
 	IInAppBillingService mService;
+    static FragmentSingleton mFragmentSingleton;
 	ServiceConnection mServiceConn = new ServiceConnection() {
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
@@ -66,10 +77,46 @@ public class SettingsFragment extends PreferenceFragment {
 		Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
 		serviceIntent.setPackage("com.android.vending");
 		getActivity().bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
-
+        mFragmentSingleton = FragmentSingleton.get(getActivity());
 		// Load the preferences from an XML resource
 		addPreferencesFromResource(R.xml.pref_general);
 		//simple is as simple does
+        Preference from_text = findPreference("add_text_wallet");
+        from_text.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                //open up a text entry dialog to add a new wallet
+                AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+                final EditText input = new EditText(getActivity());
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                input.setLayoutParams(lp);
+
+                dialog.setView(input);
+
+                dialog.setPositiveButton(getResources().getString(R.string.validate), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String address = input.getText().toString();
+                        VerifyAndAdd task = new VerifyAndAdd(Utilities.checkQRCodeType(address));
+                        task.execute(address);
+                    }
+                });
+
+                dialog.setNegativeButton(getResources().getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                dialog.show();
+                return true;
+            }
+        });
+
+
 		Preference pref_backup = findPreference("backup");
 		pref_backup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
@@ -145,9 +192,11 @@ public class SettingsFragment extends PreferenceFragment {
 			}
 		});
 
+
 		Preference donate_ads = findPreference("donateBilling");
 		Preference donate_doge = findPreference("donateDoge");
 		Preference attributions = findPreference("attributions");
+
 
 		boolean areAdsRemoved = PreferenceManager.getDefaultSharedPreferences(getActivity())
 				.getBoolean(MainActivity.PREF_ADS_REMOVED, false);
@@ -249,4 +298,105 @@ public class SettingsFragment extends PreferenceFragment {
 	public void onPause() {
 		super.onPause();
 	}
+
+    //This task verifies that addresses are valid and adds them to the DB
+    public class VerifyAndAdd extends AsyncTask<String, Void, Void> {
+        //constructor with type already defined
+        public VerifyAndAdd(int type) {
+            mType = type;
+        }
+
+        int mType;
+
+        //extract address data from various types and check each address before adding
+        @Override
+        protected Void doInBackground(String... params) {
+
+            switch (mType) {
+                case Utilities.QR_TYPE_CLIENT_WALLET_URI:
+                    Log.i(TAG, "Unrecognized Wallet URI");
+                    for (String s : params) {
+                        addWalletAddress(s.replace("dogecoin:", ""));
+                    }
+                    break;
+
+                case Utilities.QR_TYPE_JSON_ADDRESSES:
+                    Log.i(TAG, "Got type JSON addresses");
+                    try {
+                        //should be an array
+                        JSONArray array = new JSONArray(params[0]);
+                        for (int i = 0; i < array.length(); i++) {
+                            JSONObject o = array.getJSONObject(i);
+                            addWalletAddress(o.getString("address"));
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, e.toString());
+                    }
+                    break;
+
+                case Utilities.QR_TYPE_WALLET_ADDRESS:
+                    Log.i(TAG, "Got type Wallet Address");
+                    for (String s : params) {
+                        addWalletAddress(s);
+                    }
+                    break;
+
+                case Utilities.QR_TYPE_POOL_API_KEY:
+                    Log.i(TAG, "Got type Pool API key");
+                    for (String s : params) {
+                        addPool(s);
+                    }
+                    break;
+                case Utilities.QR_TYPE_UNKNOWN:
+                    Log.i(TAG, "Unrecognized QR type");
+                    break;
+                default:
+                    Log.e(TAG, "VerifyAndAdd called incorrectly: aborting");
+                    break;
+            }
+            return null;
+        }
+
+        /**
+         * NOT FOR USE ON MAIN THREAD
+         * <p/>
+         * NETWORK ACTIVITY IS DONE IN THIS METHOD
+         * <p/>
+         * Verifies a given Dogecoin address and adds it to the list, if it is valid
+         *
+         * @param address The address to add
+         */
+        private void addWalletAddress(String address) {
+            String url = "https://dogechain.info/chain/Dogecoin/q/checkaddress/" + address;
+
+            try {
+                HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+                connection.connect();
+                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    Log.e(TAG, "Invalid address: response is " + connection.getResponseCode());
+                    return;
+                }
+
+                mFragmentSingleton.addWallet(address);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        /**
+         * NOT FOR USE ON MAIN THREAD
+         * <p/>
+         * NETWORK ACTIVITY IS DONE IN THIS METHOD
+         * <p/>
+         * Verifies a given Dogecoin address and adds it to the list, if it is valid
+         *
+         * @param apiData The pool API MPOS string to add
+         */
+        private void addPool(String apiData) {
+
+        }
+
+
+    }
 }

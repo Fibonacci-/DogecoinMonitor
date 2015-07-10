@@ -72,5 +72,7 @@
         <a href='https://github.com/zxing/zxing'>Zebra Crossing project</a> for QR code reading\n\n
         <a href='https://github.com/Androguide/HoloGraphLibrary'>HoloGraphLibrary</a> for graphing engine
         </string>
+    <string name="pref_add_wallet_text">Add wallet by text</string>
+    <string name="validate">Validate</string>
 
 </resources>

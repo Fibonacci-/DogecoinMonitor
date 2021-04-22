@@ -1,13 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 30
 
     defaultConfig {
         applicationId "com.helwigdev.a.dogecoinutilities"
-        minSdkVersion 11
-        targetSdkVersion 22
+        minSdkVersion 24
+        targetSdkVersion 30
         versionCode 11
         versionName "Release 2.0.1 Built 7.10.15"
     }
@@ -29,7 +28,7 @@ repositories {
 
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     // Supports Android 4.0.3 and later (API level 15)
 
     // Supports Android 2.1 and later (API level 7), but not optimal for later Android versions.
@@ -42,13 +41,13 @@ dependencies {
     // Version 3.0.x of zxing core contains some code that is not compatible on Android 2.2 and earlier.
     // This mostly affects encoding, but you should test if you plan to support these versions.
     // Older versions e.g. 2.2 may also work if you need support for older Android versions.
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.journeyapps:zxing-android-embedded:2.0.1@aar'
-    compile 'com.journeyapps:zxing-android-legacy:2.0.1@aar'
-    compile 'com.journeyapps:zxing-android-integration:2.0.1@aar'
-    compile 'com.google.zxing:core:3.0.1'
-    compile 'com.android.support:support-v4:22.2.0'
-    compile 'com.android.support:cardview-v7:21.0.3'
-    compile 'com.android.support:recyclerview-v7:21.0.3'
-    compile 'com.google.android.gms:play-services:7.5.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.journeyapps:zxing-android-legacy:2.0.1@aar'
+    implementation 'com.journeyapps:zxing-android-integration:2.0.1@aar'
+    implementation 'com.google.zxing:core:3.4.1'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.0'
+    implementation 'com.google.android.gms:play-services:12.0.1'
+    implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
 }

@@ -7,8 +7,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,6 +16,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 
 import com.echo.holographlibrary.Line;
 import com.echo.holographlibrary.LinePoint;
@@ -193,8 +194,7 @@ public class CurrencyFragment extends Fragment {
 
 		//here we have the meat of the fragment
 
-		private String urlGetDogeSat = "https://block" +
-				".io/api/v1/get_current_price/?api_key=6411-6b24-8a06-218e&price_base=BTC";
+		private String urlGetDogeSat = "https://chain.so/api/v2/get_price/DOGE/BTC";
 		private String urlGetDogeLocal;//set in preExecute
 		TextView tv;
 
@@ -204,8 +204,7 @@ public class CurrencyFragment extends Fragment {
 			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 			String local = prefs.getString(PREF_LOCAL_CURRENCY, "USD");
 			//build API url for local currency
-			urlGetDogeLocal = "https://block" +
-					".io/api/v1/get_current_price/?api_key=6411-6b24-8a06-218e&price_base=" +
+			urlGetDogeLocal = "https://chain.so/api/v2/get_price/DOGE/" +
 					local;
 		}
 

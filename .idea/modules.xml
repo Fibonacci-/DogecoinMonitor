@@ -3,8 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/DogecoinMonitor.iml" filepath="$PROJECT_DIR$/DogecoinMonitor.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/DogecoinMonitor.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/DogecoinMonitor.app.iml" />
     </modules>
   </component>
 </project>
-

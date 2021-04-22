@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -16,6 +15,8 @@ import android.view.ViewGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -454,12 +455,10 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 
 	public class GetConversionAmounts extends AsyncTask<String, Void, Double[]> {
 		//set API locations
-		String btc = "https://block.io/api/v1/get_current_price/?api_key=" + BLOCK_IO_KEY +
-				"&price_base=" + "BTC";
+		String btc = "https://chain.so/api/v2/get_price/DOGE/BTC";
 		String fiatBase = PreferenceManager.getDefaultSharedPreferences(mActivity)
 				.getString(CurrencyFragment.PREF_LOCAL_CURRENCY, "USD");
-		String fiat = "https://block.io/api/v1/get_current_price/?api_key=" + BLOCK_IO_KEY +
-				"&price_base=" + fiatBase;
+		String fiat = "https://chain.so/api/v2/get_price/DOGE/" + fiatBase;
 
 		WalletSecondaryListener mWalletSecondaryListener;
 

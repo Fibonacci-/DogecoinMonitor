@@ -15,12 +15,14 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.Toast;
+
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.android.vending.billing.IInAppBillingService;
 import com.google.android.gms.ads.AdRequest;
@@ -272,8 +274,12 @@ public class MainActivity extends Activity
 
 				// handle scan result
 				Log.d("QR", scanResult.getContents());
-				new VerifyAndAdd(Utilities.checkQRCodeType(scanResult.getContents())).execute
-						(scanResult.getContents());
+				try {
+					new VerifyAndAdd(Utilities.checkQRCodeType(scanResult.getContents())).execute
+							(scanResult.getContents());
+				} catch (RuntimeException e){
+					Toast.makeText(this, "QR code did not appear to be a wallet address!", Toast.LENGTH_LONG).show();
+				}
 
 			}
 			finishActivity(requestCode);

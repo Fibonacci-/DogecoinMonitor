@@ -43,8 +43,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-import de.langerhans.wallet.integration.android.BitcoinIntegration;
-
 /**
  * Created by Tyler on 1/10/2015.
  * Copyright 2015 by Helwig Development
@@ -194,7 +192,6 @@ public class SettingsFragment extends PreferenceFragment {
 
 
 		Preference donate_ads = findPreference("donateBilling");
-		Preference donate_doge = findPreference("donateDoge");
 		Preference attributions = findPreference("attributions");
 
 
@@ -230,17 +227,6 @@ public class SettingsFragment extends PreferenceFragment {
 			}
 
 		});
-		donate_doge.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				//start intent for doge wallet
-				long oneHundredDoge = 100 * 100000000l;//last digit is actually an L
-				//request was designed for satoshi amounts, so we need to multiply
-				//amount by a lot
-				BitcoinIntegration.request(getActivity(), DONATE_ADDRESS, oneHundredDoge);
-				return false;
-			}
-		});
 
 		attributions.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
@@ -259,7 +245,6 @@ public class SettingsFragment extends PreferenceFragment {
 								//can't use string resource for the following because when the system grabs the string
 								//from the XML file it erases all HTML formatting, removing the links.
 						.setMessage(Html.fromHtml("This app uses unmodified code from the following sources:<br>" +
-								"<a href='https://github.com/langerhans/dogecoin-wallet-new'>Dogecoin Wallet</a> for payment integration, last updated 4/21/2015<br>" +
 								"<a href='https://github.com/zxing/zxing'>Zebra Crossing project</a> for QR code reading, updated through maven on each build<br>" +
 								"<a href='https://github.com/Androguide/HoloGraphLibrary'>HoloGraphLibrary</a> for graphing engine, last updated 4/21/2015"))
 						.setIcon(android.R.drawable.ic_menu_info_details)

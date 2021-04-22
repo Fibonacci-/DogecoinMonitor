@@ -1,5 +1,6 @@
 package com.helwigdev.a.dogecoinutilities;
 
+import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,6 +24,9 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.android.vending.billing.IInAppBillingService;
@@ -168,10 +173,6 @@ public class MainActivity extends Activity
 		if(!areAdsRemoved) {
 
 			AdRequest adRequest = new AdRequest.Builder()
-					.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-					.addTestDevice("827EB1A5D0932A3128F6670540C5EFEC")
-					.addTestDevice("870856BEB78EBA07DB2D4697C70F2369")
-                    .addTestDevice("9C936F4E1202A369D7F6C7E028743D06")
 					.build();
 			mAdView.loadAd(adRequest);
 		} else {
@@ -241,6 +242,13 @@ public class MainActivity extends Activity
 				onSectionAttached(positionBeforeScan + 1);
 				mNavigationDrawerFragment.setItemPosition(positionBeforeScan);
 
+				//check for camera access
+				if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+						== PackageManager.PERMISSION_DENIED){
+					ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, 254);
+					break;
+				}
+
 				//scan new QR and handle result
 				IntentIntegrator integrator = new IntentIntegrator(this);
 				integrator.initiateScan();
@@ -259,6 +267,19 @@ public class MainActivity extends Activity
 		}
 
 
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		if (requestCode == 254) {
+			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				IntentIntegrator integrator = new IntentIntegrator(this);
+				integrator.initiateScan();
+			} else {
+				Toast.makeText(this, "We need camera permission to scan your wallet QR code.", Toast.LENGTH_LONG).show();
+			}
+		}
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {

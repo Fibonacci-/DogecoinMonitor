@@ -59,9 +59,6 @@
                 android:targetClass="com.helwigdev.a.dogecoinutilities.RemoveAds"
                 android:targetPackage="com.helwigdev.a.dogecoinutilities" />-->
         </Preference>
-        <Preference
-            android:key="donateDoge"
-            android:title="@string/doge_donate" />
 
         <!-- Variable monetary donation options -->
         <!-- Doge-based donate options -->

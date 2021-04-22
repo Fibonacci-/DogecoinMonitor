@@ -9,8 +9,8 @@ android {
         applicationId "com.helwigdev.a.dogecoinutilities"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 13
-        versionName "Release 2.0.3 Built 4.22.21"
+        versionCode 15
+        versionName "Release 2.0.5 Built 4.22.21"
     }
     buildTypes {
         release {
@@ -46,6 +46,7 @@ dependencies {
     // Version 3.0.x of zxing core contains some code that is not compatible on Android 2.2 and earlier.
     // This mostly affects encoding, but you should test if you plan to support these versions.
     // Older versions e.g. 2.2 may also work if you need support for older Android versions.
+    implementation platform('com.google.firebase:firebase-bom:27.1.0')
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.journeyapps:zxing-android-legacy:2.0.1@aar'
     implementation 'com.journeyapps:zxing-android-integration:2.0.1@aar'

@@ -22,9 +22,10 @@
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/ad_main"
-            android:layout_width="320dp"
-            android:layout_height="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:background="@android:color/black"
             ads:adSize="BANNER"
             ads:adUnitId="@string/ad_id_main"
             />

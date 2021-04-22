@@ -32,7 +32,7 @@
     <string name="worth_1000">1000 Doge is worth:</string>
     <string name="title_section_wallet">Wallets</string>
 
-    <string name="ad_id_main">ca-app-pub-5637328886369714/7331160783 </string>
+    <string name="ad_id_main">ca-app-pub-5637328886369714/7331160783</string>
     <string name="api_fail">Block.io lookup failed</string>
     <string name="no_trades_found">No recent trades found.</string>
     <string name="error">Error</string>

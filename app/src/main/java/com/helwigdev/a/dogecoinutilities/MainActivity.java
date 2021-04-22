@@ -32,6 +32,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.android.vending.billing.IInAppBillingService;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -173,6 +176,13 @@ public class MainActivity extends Activity
 				(DrawerLayout) findViewById(R.id.drawer_layout));
 		mAdView = (AdView) findViewById(R.id.ad_main);
 		if(!areAdsRemoved) {
+
+			MobileAds.initialize(this, new OnInitializationCompleteListener() {
+				@Override
+				public void onInitializationComplete(InitializationStatus initializationStatus) {
+				}
+			});
+
 
 			AdRequest adRequest = new AdRequest.Builder()
 					.build();

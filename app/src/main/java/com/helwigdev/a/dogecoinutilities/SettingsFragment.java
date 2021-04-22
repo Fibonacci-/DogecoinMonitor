@@ -97,8 +97,12 @@ public class SettingsFragment extends PreferenceFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String address = input.getText().toString();
-                        VerifyAndAdd task = new VerifyAndAdd(Utilities.checkQRCodeType(address));
-                        task.execute(address);
+                        try {
+							VerifyAndAdd task = new VerifyAndAdd(Utilities.checkQRCodeType(address));
+							task.execute(address);
+						} catch (Exception e){
+                        	Toast.makeText(getActivity(), "Input was not a valid wallet!", Toast.LENGTH_LONG).show();
+						}
                     }
                 });
 

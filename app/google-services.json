@@ -1,0 +1,41 @@
+{
+  "project_info": {
+    "project_number": "850812877165",
+    "firebase_url": "https://admob-app-id-5854427589.firebaseio.com",
+    "project_id": "admob-app-id-5854427589",
+    "storage_bucket": "admob-app-id-5854427589.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:850812877165:android:43cecad1d0eaa5e5",
+        "android_client_info": {
+          "package_name": "com.helwigdev.a.dogecoinutilities"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "850812877165-9ntlr2bhqabmhtlg4rqmpadi80q2b2hi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKKW_wQOuZz3pd73eTjtBrlB0HUS8VM7A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "850812877165-9ntlr2bhqabmhtlg4rqmpadi80q2b2hi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-5637328886369714~5854427589"
+    }
+  ],
+  "configuration_version": "1"
+}

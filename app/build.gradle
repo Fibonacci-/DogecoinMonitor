@@ -9,8 +9,8 @@ android {
         applicationId "com.helwigdev.a.dogecoinutilities"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 12
-        versionName "Release 2.0.2 Built 4.21.21"
+        versionCode 13
+        versionName "Release 2.0.3 Built 4.22.21"
     }
     buildTypes {
         release {
@@ -26,11 +26,14 @@ repositories {
     maven {
         url "http://dl.bintray.com/journeyapps/maven"
     }
+
+    google()
 }
 
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
     // Supports Android 4.0.3 and later (API level 15)
 
     // Supports Android 2.1 and later (API level 7), but not optimal for later Android versions.

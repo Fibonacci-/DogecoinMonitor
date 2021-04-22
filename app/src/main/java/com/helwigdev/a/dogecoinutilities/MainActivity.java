@@ -157,6 +157,8 @@ public class MainActivity extends Activity
 					.show();
 		}
 
+
+
 		//set up views
 		//nav drawer fragment will handle autolaunching the first fragment
 		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);

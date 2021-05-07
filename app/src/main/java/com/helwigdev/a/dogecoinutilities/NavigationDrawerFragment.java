@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -269,10 +270,14 @@ public class NavigationDrawerFragment extends Fragment {
 	 * 'context', rather than just what's in the current screen.
 	 */
 	private void showGlobalContextActionBar() {
-		ActionBar actionBar = getActionBar();
-		actionBar.setDisplayShowTitleEnabled(true);
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-		actionBar.setTitle(R.string.app_name);
+		try {
+			ActionBar actionBar = getActionBar();
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+			actionBar.setTitle(R.string.app_name);
+		} catch (Exception e){
+			Log.e("NavDrawer","Encountered an error while setting action bar app-level context");
+		}
 	}
 
 	private ActionBar getActionBar() {

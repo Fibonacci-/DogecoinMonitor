@@ -9,8 +9,8 @@ android {
         applicationId "com.helwigdev.a.dogecoinutilities"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 15
-        versionName "Release 2.0.5 Built 4.22.21"
+        versionCode 16
+        versionName "2.0.6-5.7.21"
     }
     buildTypes {
         release {

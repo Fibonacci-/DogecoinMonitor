@@ -35,8 +35,8 @@ import java.util.ArrayList;
 public class PieGraph extends View {
 
 	private ArrayList<PieSlice> slices = new ArrayList<PieSlice>();
-	private Paint paint = new Paint();
-	private Path path = new Path();
+	private final Paint paint = new Paint();
+	private final Path path = new Path();
 	
 	private int indexSelected = -1;
 	private int thickness = 50;
@@ -184,8 +184,8 @@ public class PieGraph extends View {
 		postInvalidate();
 	}
 
-	public static interface OnSliceClickedListener {
-		public abstract void onClick(int index);
+	public interface OnSliceClickedListener {
+		void onClick(int index);
 	}
 
 }

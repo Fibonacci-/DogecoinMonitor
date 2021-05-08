@@ -578,8 +578,8 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 	public static class GetWalletBalance extends AsyncTask<String, Void, String> {
 		//get and parse network data
 
-		private String apiUrl = "https://dogechain.info/chain/Dogecoin/q/addressbalance/";
-		private WalletListener mWalletListener;
+		private final String apiUrl = "https://dogechain.info/chain/Dogecoin/q/addressbalance/";
+		private final WalletListener mWalletListener;
 		private String mAddress;
 
 		public GetWalletBalance(WalletListener walletListener) {

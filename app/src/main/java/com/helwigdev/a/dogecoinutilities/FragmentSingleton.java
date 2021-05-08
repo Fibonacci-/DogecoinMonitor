@@ -22,7 +22,7 @@ public class FragmentSingleton {
 
 	private ArrayList<String> mPoolList;
 
-	private Context mContext;
+	private final Context mContext;
 
 	private static FragmentSingleton instance = null;
 

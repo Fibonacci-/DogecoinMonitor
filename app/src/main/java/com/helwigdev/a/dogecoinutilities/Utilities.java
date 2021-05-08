@@ -241,12 +241,12 @@ public class Utilities {
 
 		/**if (codeResult.substring(0, 1).equals("|")) {//no more pools :(
 			return QR_TYPE_POOL_API_KEY;
-		} else*/ if (codeResult.length() > 9 && codeResult.substring(0, 9).equals("dogecoin:")) {
+		} else*/ if (codeResult.length() > 9 && codeResult.startsWith("dogecoin:")) {
 			//Log.d("Utilities", "Detected client URI");
 			return QR_TYPE_CLIENT_WALLET_URI;
-		} else if (codeResult.substring(0, 1).equals("D")) {
+		} else if (codeResult.charAt(0) == 'D') {
 			return QR_TYPE_WALLET_ADDRESS;
-		} else if (codeResult.substring(0, 1).equals("[")) {
+		} else if (codeResult.charAt(0) == '[') {
 			return QR_TYPE_JSON_ADDRESSES;
 		} else if(array[0] == 30 || array[0] == 22) {//why, block.io, why
 			//should also do a double sha265 hash on all but the last 4 bytes of the array

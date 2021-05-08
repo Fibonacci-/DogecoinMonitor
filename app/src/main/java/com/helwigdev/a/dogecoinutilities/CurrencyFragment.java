@@ -194,7 +194,7 @@ public class CurrencyFragment extends Fragment {
 
 		//here we have the meat of the fragment
 
-		private String urlGetDogeSat = "https://chain.so/api/v2/get_price/DOGE/BTC";
+		private final String urlGetDogeSat = "https://chain.so/api/v2/get_price/DOGE/BTC";
 		private String urlGetDogeLocal;//set in preExecute
 		TextView tv;
 

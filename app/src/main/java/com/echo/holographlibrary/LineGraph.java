@@ -37,9 +37,10 @@ import java.util.ArrayList;
 public class LineGraph extends View {
 	
 	private ArrayList<Line> lines = new ArrayList<Line>();
-	private Paint paint = new Paint();
-	private Paint txtPaint = new Paint();
-	private float minY = 0, minX = 0;
+	private final Paint paint = new Paint();
+	private final Paint txtPaint = new Paint();
+	private float minY = 0;
+	private final float minX = 0;
 	private float maxY = 0, maxX = 0;
 	private boolean isMaxYUserSet = false;
 	private int lineToFill = -1;
@@ -429,6 +430,6 @@ public class LineGraph extends View {
 	}
 
 	public interface OnPointClickedListener {
-		abstract void onClick(int lineIndex, int pointIndex);
+		void onClick(int lineIndex, int pointIndex);
 	}
 }

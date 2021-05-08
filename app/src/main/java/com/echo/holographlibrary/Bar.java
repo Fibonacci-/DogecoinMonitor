@@ -36,7 +36,7 @@ public class Bar {
 	private Path path;
 	private Region region;
     private boolean isStackedBar;
-    private ArrayList<BarStackSegment> values = new ArrayList<BarStackSegment>();
+    private final ArrayList<BarStackSegment> values = new ArrayList<BarStackSegment>();
 	
 	public int getColor() {
 		return color;

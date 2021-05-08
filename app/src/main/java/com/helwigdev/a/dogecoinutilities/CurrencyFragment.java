@@ -22,6 +22,7 @@ import androidx.cardview.widget.CardView;
 
 import com.echo.holographlibrary.Line;
 import com.echo.holographlibrary.LinePoint;
+import com.google.firebase.perf.metrics.AddTrace;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -208,6 +209,7 @@ public class CurrencyFragment extends Fragment {
 					local;
 		}
 
+		@AddTrace(name = "GetCurrencyAsync")
 		@Override
 		protected String doInBackground(TextView... params) {
 			if (params[0] == null) return getResources().getString(R.string.error);
@@ -276,6 +278,7 @@ public class CurrencyFragment extends Fragment {
 		protected void onPostExecute(final String s) {
 			//this section of the asynctask is run on the UI thread
 			//so we can touch and modify the UI
+			Log.d(TAG, "Start post-execute for async currency get");
 			if (isAdded()) {//don't touch it if the fragment isn't attached to an activity
 				if (s != null) {//null return means error, don't modify
 					//set appropriate values to appropriate textviews
@@ -303,6 +306,8 @@ public class CurrencyFragment extends Fragment {
 					MenuItem itemRefresh = mMenu.findItem(R.id.menu_currency_refresh);
 					if (itemRefresh != null) itemRefresh.setActionView(null);
 				}
+			} else {
+				Log.w(TAG, "Attempted to modify currency fragment while not attached to an activity!");
 			}
 		}
 

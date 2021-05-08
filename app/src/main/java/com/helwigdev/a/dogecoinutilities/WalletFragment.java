@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
+import com.google.firebase.perf.metrics.AddTrace;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -586,6 +588,7 @@ public class WalletFragment extends Fragment implements WalletListener, WalletSe
 			mWalletListener = walletListener;
 		}
 
+		@AddTrace(name = "GetWalletBalance")
 		@Override
 		protected String doInBackground(String... params) {
 			for (String s : params) {
